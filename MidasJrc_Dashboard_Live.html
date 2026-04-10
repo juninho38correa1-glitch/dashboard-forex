@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MidasJrc — Trading Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Clash+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:     #08090c;
+  --bg2:    #0e1016;
+  --bg3:    #13151d;
+  --bg4:    #181b24;
+  --border: rgba(255,255,255,0.06);
+  --border2:rgba(255,255,255,0.11);
+  --green:  #00e5a0;
+  --green2: #00b37a;
+  --red:    #ff4560;
+  --red2:   #cc2040;
+  --gold:   #f0b429;
+  --blue:   #3b82f6;
+  --purple: #a78bfa;
+  --text:   #e2e8f4;
+  --muted:  #4a5168;
+  --muted2: #8892aa;
+  --mono:   'DM Mono', monospace;
+  --display:'Clash Display', sans-serif;
+  --r:      10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--text);font-family:var(--display);min-height:100vh;overflow-x:hidden;}
+
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 600px 400px at 10% 20%, rgba(0,229,160,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 300px at 90% 80%, rgba(59,130,246,0.04) 0%, transparent 70%);
+}
+
+.app{position:relative;z-index:1;max-width:1480px;margin:0 auto;padding:20px;}
+
+/* ── HEADER ── */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 24px;margin-bottom:20px;
+  background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);
+}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-mark{
+  width:38px;height:38px;border-radius:9px;
+  background:linear-gradient(135deg,var(--green2),var(--blue));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;font-weight:500;color:#fff;letter-spacing:0.05em;
+}
+.logo-name{font-size:20px;font-weight:700;letter-spacing:0.02em;}
+.logo-name em{color:var(--green);font-style:normal;}
+.header-meta{display:flex;align-items:center;gap:24px;}
+.sync-badge{
+  display:flex;align-items:center;gap:7px;
+  font-family:var(--mono);font-size:11px;color:var(--green);
+  background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);
+  padding:5px 12px;border-radius:20px;cursor:pointer;
+  transition:all 0.2s;
+}
+.sync-badge:hover{background:rgba(0,229,160,0.15);}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.last-sync{font-family:var(--mono);font-size:11px;color:var(--muted2);}
+
+/* ── KPI ROW ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
+.kpi{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  padding:18px 20px;position:relative;overflow:hidden;
+  transition:border-color 0.2s;
+}
+.kpi:hover{border-color:var(--border2);}
+.kpi::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  opacity:0.7;
+}
+.kpi.g::after{background:var(--green);}
+.kpi.r::after{background:var(--red);}
+.kpi.b::after{background:var(--blue);}
+.kpi.gold::after{background:var(--gold);}
+.kpi.pu::after{background:var(--purple);}
+.kpi-label{font-size:10px;color:var(--muted2);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;}
+.kpi-val{font-family:var(--mono);font-size:28px;font-weight:500;line-height:1;}
+.kpi-val.g{color:var(--green);}
+.kpi-val.r{color:var(--red);}
+.kpi-val.b{color:var(--blue);}
+.kpi-val.gold{color:var(--gold);}
+.kpi-val.pu{color:var(--purple);}
+.kpi-sub{font-size:11px;color:var(--muted2);margin-top:6px;font-family:var(--mono);}
+
+/* ── MAIN GRID ── */
+.main-grid{display:grid;grid-template-columns:1fr 360px;gap:16px;margin-bottom:16px;}
+.left-col{display:flex;flex-direction:column;gap:16px;}
+.right-col{display:flex;flex-direction:column;gap:16px;}
+
+/* ── CARDS ── */
+.card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;
+}
+.card-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-bottom:1px solid var(--border);
+}
+.card-title{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted2);}
+.card-body{padding:20px;}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:3px;}
+.tab{
+  padding:5px 12px;border-radius:6px;border:none;cursor:pointer;
+  font-family:var(--display);font-size:11px;font-weight:500;
+  background:transparent;color:var(--muted);transition:all 0.2s;
+}
+.tab.on{background:var(--bg4);color:var(--text);border:1px solid var(--border2);}
+.tab:hover:not(.on){color:var(--muted2);}
+
+/* ── CHART ── */
+.chart-wrap{position:relative;height:220px;}
+
+/* ── PERÍODO STATS ── */
+.period-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.ps{
+  background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;
+}
+.ps-label{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;}
+.ps-val{font-family:var(--mono);font-size:17px;font-weight:500;}
+.ps-val.g{color:var(--green);}
+.ps-val.r{color:var(--red);}
+.ps-val.gold{color:var(--gold);}
+.ps-val.b{color:var(--blue);}
+.ps-val.pu{color:var(--purple);}
+
+/* ── ATIVOS BREAKDOWN ── */
+.asset-list{display:flex;flex-direction:column;gap:8px;}
+.asset-row{display:flex;align-items:center;gap:10px;}
+.asset-name{font-family:var(--mono);font-size:12px;font-weight:500;width:68px;}
+.asset-bar-wrap{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.asset-bar{height:100%;border-radius:3px;transition:width 0.6s;}
+.asset-pnl{font-family:var(--mono);font-size:12px;font-weight:500;width:72px;text-align:right;}
+.asset-ops{font-family:var(--mono);font-size:10px;color:var(--muted2);width:36px;text-align:right;}
+
+/* ── EA BREAKDOWN ── */
+.ea-list{display:flex;flex-direction:column;gap:8px;}
+.ea-row{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;
+}
+.ea-name{font-size:12px;font-weight:600;}
+.ea-meta{font-size:10px;color:var(--muted2);margin-top:2px;font-family:var(--mono);}
+.ea-pnl{font-family:var(--mono);font-size:14px;font-weight:500;text-align:right;}
+.ea-wr{font-size:10px;color:var(--muted2);text-align:right;font-family:var(--mono);}
+
+/* ── TABELA ── */
+.ops-wrap{max-height:240px;overflow-y:auto;}
+.ops-wrap::-webkit-scrollbar{width:3px;}
+.ops-wrap::-webkit-scrollbar-track{background:transparent;}
+.ops-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
+thead th{
+  padding:8px 10px;text-align:left;
+  color:var(--muted2);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;
+  border-bottom:1px solid var(--border);font-weight:400;position:sticky;top:0;background:var(--bg2);
+}
+tbody tr{border-bottom:1px solid rgba(255,255,255,0.025);transition:background 0.15s;}
+tbody tr:hover{background:rgba(255,255,255,0.025);}
+tbody td{padding:8px 10px;}
+.type-buy{background:rgba(0,229,160,0.1);color:var(--green);padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500;}
+.type-sell{background:rgba(255,69,96,0.1);color:var(--red);padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500;}
+.pnl-pos{color:var(--green);}
+.pnl-neg{color:var(--red);}
+
+/* ── CALENDAR HEATMAP ── */
+.cal-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;}
+.cal-day{
+  aspect-ratio:1;border-radius:3px;cursor:pointer;
+  transition:transform 0.1s;position:relative;
+}
+.cal-day:hover{transform:scale(1.15);}
+.cal-day[title]:hover::after{
+  content:attr(title);position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);
+  background:var(--bg4);border:1px solid var(--border2);border-radius:4px;
+  padding:4px 8px;font-size:10px;white-space:nowrap;color:var(--text);
+  font-family:var(--mono);z-index:10;pointer-events:none;
+}
+
+/* ── BOTTOM ROW ── */
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+/* ── TICKER ── */
+.ticker-bar{
+  display:flex;gap:24px;overflow-x:auto;padding:12px 20px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  margin-bottom:20px;
+}
+.ticker-bar::-webkit-scrollbar{display:none;}
+.ticker-item{display:flex;align-items:center;gap:8px;white-space:nowrap;}
+.ticker-sym{font-size:12px;font-weight:600;color:var(--muted2);}
+.ticker-val{font-family:var(--mono);font-size:13px;font-weight:500;}
+
+@media(max-width:1100px){
+  .main-grid{grid-template-columns:1fr;}
+  .kpi-row{grid-template-columns:repeat(3,1fr);}
+  .bottom-row{grid-template-columns:1fr;}
+}
+@media(max-width:600px){
+  .kpi-row{grid-template-columns:1fr 1fr;}
+  .period-grid{grid-template-columns:1fr 1fr;}
+}
+
+/* ── FOOTER ── */
+.footer{
+  text-align:center;
+  padding:20px;
+  margin-top:8px;
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--muted);
+  border-top:1px solid var(--border);
+  letter-spacing:0.06em;
+}
+.footer a{
+  color:var(--muted2);
+  text-decoration:none;
+  transition:color 0.2s;
+}
+.footer a:hover{ color:var(--green); }
+.footer em{ color:var(--muted2); font-style:normal; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">MJ</div>
+    <div class="logo-name">Midas<em>Jrc</em></div>
+  </div>
+  <div class="header-meta">
+    <div class="last-sync" id="lastSync">Última sync: agora</div>
+    <div class="sync-badge" onclick="loadData()">
+      <div class="sync-dot"></div>
+      <span id="syncLabel">SINCRONIZADO</span>
+    </div>
+  </div>
+</header>
+
+<!-- KPIs -->
+<div class="kpi-row">
+  <div class="kpi g">
+    <div class="kpi-label">P&L Total</div>
+    <div class="kpi-val g" id="kpiTotal">—</div>
+    <div class="kpi-sub" id="kpiTotalSub">—</div>
+  </div>
+  <div class="kpi b">
+    <div class="kpi-label">Operações</div>
+    <div class="kpi-val b" id="kpiOps">—</div>
+    <div class="kpi-sub" id="kpiOpsSub">—</div>
+  </div>
+  <div class="kpi gold">
+    <div class="kpi-label">Winrate</div>
+    <div class="kpi-val gold" id="kpiWin">—</div>
+    <div class="kpi-sub" id="kpiWinSub">—</div>
+  </div>
+  <div class="kpi pu">
+    <div class="kpi-label">Melhor dia</div>
+    <div class="kpi-val pu" id="kpiBest">—</div>
+    <div class="kpi-sub" id="kpiBestSub">—</div>
+  </div>
+  <div class="kpi r">
+    <div class="kpi-label">Pior dia</div>
+    <div class="kpi-val r" id="kpiWorst">—</div>
+    <div class="kpi-sub" id="kpiWorstSub">—</div>
+  </div>
+</div>
+
+<!-- Ticker rápido por ativo -->
+<div class="ticker-bar" id="tickerBar"></div>
+
+<!-- MAIN GRID -->
+<div class="main-grid">
+  <div class="left-col">
+
+    <!-- Equity curve -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Curva de Equity</span>
+        <div class="tabs">
+          <button class="tab on" onclick="setEquityTab('all',this)">Tudo</button>
+          <button class="tab" onclick="setEquityTab('week',this)">Semana</button>
+          <button class="tab" onclick="setEquityTab('day',this)">Hoje</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap"><canvas id="equityChart" role="img" aria-label="Curva de equity acumulada"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Resultado por período -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Resultado por Período</span>
+        <div class="tabs">
+          <button class="tab on" onclick="setPeriodTab('day',this)">Hoje</button>
+          <button class="tab" onclick="setPeriodTab('week',this)">Semana</button>
+          <button class="tab" onclick="setPeriodTab('all',this)">Total</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="period-grid" id="periodGrid"></div>
+      </div>
+    </div>
+
+    <!-- Últimas operações -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Histórico de Operações</span>
+        <span style="font-size:10px;color:var(--muted2);font-family:var(--mono)" id="opsCount"></span>
+      </div>
+      <div class="card-body" style="padding:0">
+        <div class="ops-wrap">
+          <table>
+            <thead><tr>
+              <th>Data</th><th>Tipo</th><th>Ativo</th><th>EA</th><th>P&L</th>
+            </tr></thead>
+            <tbody id="opsTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="right-col">
+
+    <!-- P&L por ativo -->
+    <div class="card">
+      <div class="card-head"><span class="card-title">P&L por Ativo</span></div>
+      <div class="card-body">
+        <div class="asset-list" id="assetList"></div>
+      </div>
+    </div>
+
+    <!-- P&L por EA -->
+    <div class="card">
+      <div class="card-head"><span class="card-title">P&L por Estratégia</span></div>
+      <div class="card-body">
+        <div class="ea-list" id="eaList"></div>
+      </div>
+    </div>
+
+    <!-- Heatmap por dia -->
+    <div class="card">
+      <div class="card-head"><span class="card-title">Heatmap Diário</span></div>
+      <div class="card-body">
+        <div class="cal-grid" id="calGrid"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:10px;color:var(--muted2);font-family:var(--mono);">
+          <div style="width:10px;height:10px;border-radius:2px;background:var(--red2)"></div> Perda
+          <div style="width:10px;height:10px;border-radius:2px;background:var(--bg4);border:1px solid var(--border2);margin-left:4px"></div> Zero
+          <div style="width:10px;height:10px;border-radius:2px;background:var(--green2);margin-left:4px"></div> Lucro
+        </div>
+      </div>
+    </div>
+
+    <!-- Distribuição BUY vs SELL -->
+    <div class="card">
+      <div class="card-head"><span class="card-title">BUY vs SELL</span></div>
+      <div class="card-body">
+        <div style="position:relative;height:160px;">
+          <canvas id="donutChart" role="img" aria-label="Distribuição BUY vs SELL"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+  <!-- Footer -->
+  <div class="footer">
+    © Junior Corrêa · <em>MidasJrc EA Dashboard</em> · Todos os direitos reservados
+  </div>
+
+
+</div>
+
+<script>
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz2oHc7l66T_skzrQz-swCgYvbudiiaw7aUpswhft5TI9kfcT5CYQRmxtQHKZwaYcxo/exec';
+
+let OPS = [];
+let equityChart = null;
+let donutChart  = null;
+let currentEquityTab = 'all';
+let currentPeriodTab = 'day';
+
+// ── LOADING STATE ──
+function showLoading(show) {
+  const app = document.querySelector('.app');
+  let ov = document.getElementById('loadingOverlay');
+  if (show) {
+    if (!ov) {
+      ov = document.createElement('div');
+      ov.id = 'loadingOverlay';
+      ov.style.cssText = `position:fixed;inset:0;background:rgba(8,9,12,0.85);z-index:999;
+        display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;`;
+      ov.innerHTML = `
+        <div style="width:40px;height:40px;border:2px solid #1a1f2e;border-top:2px solid #00e5a0;
+          border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+        <div style="font-family:'DM Mono',monospace;font-size:12px;color:#8892aa;letter-spacing:0.1em;">
+          BUSCANDO DADOS DO SHEETS...</div>`;
+      document.body.appendChild(ov);
+    }
+    ov.style.display = 'flex';
+  } else {
+    if (ov) ov.style.display = 'none';
+  }
+}
+
+// ── FETCH CSV DO SHEETS ──
+async function fetchSheets() {
+  document.getElementById('syncLabel').textContent = 'SINCRONIZANDO...';
+  showLoading(true);
+  try {
+    const res = await fetch(SHEETS_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const csv = await res.text();
+    OPS = parseCSV(csv);
+    renderAll();
+    document.getElementById('syncLabel').textContent = 'SINCRONIZADO';
+    document.getElementById('lastSync').textContent  = 'Última sync: ' + new Date().toLocaleTimeString('pt-BR');
+  } catch(e) {
+    document.getElementById('syncLabel').textContent = 'ERRO — RETRY';
+    document.getElementById('syncLabel').style.color = '#ff4560';
+    showError(e.message);
+  } finally {
+    showLoading(false);
+  }
+}
+
+function showError(msg) {
+  let el = document.getElementById('errBanner');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'errBanner';
+    el.style.cssText = `background:rgba(255,69,96,0.1);border:1px solid rgba(255,69,96,0.3);
+      color:#ff4560;font-family:'DM Mono',monospace;font-size:11px;padding:10px 16px;
+      border-radius:8px;margin-bottom:16px;`;
+    document.querySelector('.app').insertBefore(el, document.querySelector('.kpi-row'));
+  }
+  el.textContent = '⚠ Erro ao buscar dados: ' + msg + ' — Verifique se a planilha está publicada publicamente.';
+  el.style.display = 'block';
+}
+
+// ── PARSE CSV ──
+function parsePnl(str) {
+  if (!str) return 0;
+  return parseFloat(str.replace(/[$\s]/g,'').replace(',','.')) || 0;
+}
+
+function parseCSV(csv) {
+  const lines = csv.trim().split('\n').filter(l => l.trim());
+  // Detectar se tem cabeçalho
+  const first = lines[0].toLowerCase();
+  const hasHeader = first.includes('data') || first.includes('date') || first.includes('tipo');
+  const dataLines = hasHeader ? lines.slice(1) : lines;
+
+  return dataLines.map(line => {
+    // Suporte a CSV (vírgula) e TSV (tab)
+    const sep   = line.includes('\t') ? '\t' : ',';
+    const parts = line.split(sep).map(p => p.replace(/^"|"$/g,'').trim());
+    const [date, strategy, asset, , , pnlRaw] = parts;
+    if (!date || !asset) return null;
+    const pnl = parsePnl(pnlRaw || parts[3]);
+    let type = 'OUTRO';
+    if (strategy && strategy.includes('[BUY]'))  type = 'BUY';
+    else if (strategy && strategy.includes('[SELL]')) type = 'SELL';
+    let ea = 'Manual';
+    if (strategy && strategy.includes('H1M1'))      ea = 'H1M1';
+    else if (strategy && strategy.includes('M5X'))   ea = 'M5X';
+    else if (strategy && strategy.includes('AlphaBot')) ea = 'MidasJrc EA';
+    else if (strategy && strategy.includes('MidasJrc')) ea = 'MidasJrc EA';
+    return { date: date.trim(), strategy: strategy||'', asset: asset.trim(), pnl, type, ea };
+  }).filter(r => r && !isNaN(r.pnl) && r.date.match(/\d{4}/));
+}
+
+// ── COMPUTED ──
+function getToday()     { const d=[...new Set(OPS.map(o=>o.date))].sort(); return d[d.length-1]||''; }
+function getWeekDates() {
+  const all = [...new Set(OPS.map(o=>o.date))].sort();
+  return all.slice(-7);
+}
+function sum(arr)       { return arr.reduce((a,b)=>a+b.pnl,0); }
+function filterDate(d)  { return OPS.filter(o=>o.date===d); }
+function filterDates(ds){ return OPS.filter(o=>ds.includes(o.date)); }
+function fmt(v)         { return (v>=0?'+$':'-$') + Math.abs(v).toFixed(2); }
+
+function stats(ops) {
+  const total   = sum(ops);
+  const wins    = ops.filter(o=>o.pnl>0).length;
+  const losses  = ops.filter(o=>o.pnl<0).length;
+  const winrate = ops.length>0 ? wins/ops.length*100 : 0;
+  const avgWin  = wins>0   ? sum(ops.filter(o=>o.pnl>0))/wins   : 0;
+  const avgLoss = losses>0 ? sum(ops.filter(o=>o.pnl<0))/losses : 0;
+  const pf      = Math.abs(avgLoss)>0 ? (avgWin*wins)/(Math.abs(avgLoss)*losses) : 0;
+  return { total, wins, losses, winrate, avgWin, avgLoss, pf, count: ops.length };
+}
+
+// ── RENDER ALL ──
+function renderAll() {
+  const allDates = [...new Set(OPS.map(o=>o.date))].sort();
+  const dayPnl   = {};
+  allDates.forEach(d => { dayPnl[d] = sum(filterDate(d)); });
+  const TODAY      = getToday();
+  const WEEK_DATES = getWeekDates();
+  const todayOps   = filterDate(TODAY);
+  const weekOps    = filterDates(WEEK_DATES);
+
+  renderKpis(allDates, dayPnl);
+  renderTicker();
+  renderEquityChart(TODAY, WEEK_DATES);
+  renderPeriodStats(todayOps, weekOps);
+  renderAssets();
+  renderEAs();
+  renderHeatmap(allDates, dayPnl);
+  renderDonut();
+  renderTable();
+}
+
+// ── KPIs ──
+function renderKpis(allDates, dayPnl) {
+  const s = stats(OPS);
+  const sorted = Object.entries(dayPnl).sort((a,b)=>b[1]-a[1]);
+  const best   = sorted[0] || ['—', 0];
+  const worst  = sorted[sorted.length-1] || ['—', 0];
+
+  document.getElementById('kpiTotal').textContent    = fmt(s.total);
+  document.getElementById('kpiTotalSub').textContent = s.wins+'W / '+s.losses+'L total';
+  document.getElementById('kpiOps').textContent      = s.count;
+  document.getElementById('kpiOpsSub').textContent   = allDates.length+' dias operados';
+  document.getElementById('kpiWin').textContent      = s.winrate.toFixed(1)+'%';
+  document.getElementById('kpiWinSub').textContent   = 'PF: '+s.pf.toFixed(2);
+  document.getElementById('kpiBest').textContent     = fmt(best[1]);
+  document.getElementById('kpiBestSub').textContent  = best[0].replace('2026.','');
+  document.getElementById('kpiWorst').textContent    = fmt(worst[1]);
+  document.getElementById('kpiWorstSub').textContent = worst[0].replace('2026.','');
+}
+
+// ── TICKER ──
+function renderTicker() {
+  const assets = [...new Set(OPS.map(o=>o.asset))];
+  document.getElementById('tickerBar').innerHTML = assets.map(a => {
+    const p   = sum(OPS.filter(o=>o.asset===a));
+    const col = p>=0 ? 'var(--green)' : 'var(--red)';
+    return `<div class="ticker-item">
+      <span class="ticker-sym">${a}</span>
+      <span class="ticker-val" style="color:${col}">${fmt(p)}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── EQUITY CHART ──
+function buildEquityData(tab, TODAY, WEEK_DATES) {
+  let ops;
+  if (tab==='all')       ops = [...OPS];
+  else if (tab==='week') ops = [...filterDates(WEEK_DATES)];
+  else                   ops = [...filterDate(TODAY)];
+  let cum = 0;
+  return ops.map(o => { cum += o.pnl; return parseFloat(cum.toFixed(2)); });
+}
+
+function renderEquityChart(TODAY, WEEK_DATES) {
+  const data  = buildEquityData(currentEquityTab, TODAY, WEEK_DATES);
+  const last  = data[data.length-1] || 0;
+  const color = last>=0 ? '#00e5a0' : '#ff4560';
+  const lbls  = data.map((_,i) => i % Math.max(1, Math.floor(data.length/12))===0 ? i : '');
+
+  if (equityChart) {
+    equityChart.data.labels = lbls;
+    equityChart.data.datasets[0].data = data;
+    equityChart.data.datasets[0].borderColor = color;
+    equityChart.data.datasets[0].backgroundColor = color+'12';
+    equityChart.update('none');
+    return;
+  }
+  const ctx = document.getElementById('equityChart').getContext('2d');
+  equityChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: lbls, datasets:[{
+      data, borderColor: color, backgroundColor: color+'12',
+      borderWidth: 2, pointRadius: 0, tension: 0.4, fill: true
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 400 },
+      plugins: { legend:{display:false}, tooltip:{
+        backgroundColor:'#181b24', borderColor:'#ffffff18', borderWidth:1,
+        titleColor:'#8892aa', bodyColor:'#e2e8f4',
+        callbacks:{ label: c => '$'+c.parsed.y.toFixed(2) }
+      }},
+      scales: {
+        x: { grid:{color:'#ffffff08'}, ticks:{color:'#4a5168',font:{size:9}} },
+        y: { grid:{color:'#ffffff08'}, ticks:{color:'#4a5168',font:{size:9}, callback: v=>'$'+v.toFixed(0)} }
+      }
+    }
+  });
+}
+
+function setEquityTab(tab, el) {
+  currentEquityTab = tab;
+  el.closest('.tabs').querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  const allDates   = [...new Set(OPS.map(o=>o.date))].sort();
+  renderEquityChart(getToday(), getWeekDates());
+}
+
+// ── PERÍODO ──
+function renderPeriodStats(todayOps, weekOps) {
+  const ops = currentPeriodTab==='day' ? todayOps : currentPeriodTab==='week' ? weekOps : OPS;
+  const s   = stats(ops);
+  const lbl = currentPeriodTab==='day'?'Hoje':currentPeriodTab==='week'?'Semana':'Total';
+  document.getElementById('periodGrid').innerHTML = `
+    <div class="ps"><div class="ps-label">P&L ${lbl}</div><div class="ps-val ${s.total>=0?'g':'r'}">${fmt(s.total)}</div></div>
+    <div class="ps"><div class="ps-label">Operações</div><div class="ps-val b">${s.count}</div></div>
+    <div class="ps"><div class="ps-label">Winrate</div><div class="ps-val gold">${s.winrate.toFixed(1)}%</div></div>
+    <div class="ps"><div class="ps-label">Média win</div><div class="ps-val g">${s.wins>0?'+$'+s.avgWin.toFixed(2):'—'}</div></div>
+    <div class="ps"><div class="ps-label">Média loss</div><div class="ps-val r">${s.losses>0?'-$'+Math.abs(s.avgLoss).toFixed(2):'—'}</div></div>
+    <div class="ps"><div class="ps-label">Profit factor</div><div class="ps-val ${s.pf>=1?'g':'r'}">${s.pf>0?s.pf.toFixed(2):'—'}</div></div>`;
+}
+
+function setPeriodTab(tab, el) {
+  currentPeriodTab = tab;
+  el.closest('.tabs').querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  renderPeriodStats(filterDate(getToday()), filterDates(getWeekDates()));
+}
+
+// ── ATIVOS ──
+function renderAssets() {
+  const assets = [...new Set(OPS.map(o=>o.asset))];
+  const apnl   = assets.map(a=>({ a, p:sum(OPS.filter(o=>o.asset===a)), n:OPS.filter(o=>o.asset===a).length }))
+    .sort((a,b)=>Math.abs(b.p)-Math.abs(a.p));
+  const maxAbs = Math.max(...apnl.map(x=>Math.abs(x.p)));
+  document.getElementById('assetList').innerHTML = apnl.map(({a,p,n})=>{
+    const pct = maxAbs>0 ? Math.abs(p)/maxAbs*100 : 0;
+    const col = p>=0 ? 'var(--green2)' : 'var(--red2)';
+    const tc  = p>=0 ? 'var(--green)'  : 'var(--red)';
+    return `<div class="asset-row">
+      <span class="asset-name">${a}</span>
+      <div class="asset-bar-wrap"><div class="asset-bar" style="width:${pct.toFixed(0)}%;background:${col}"></div></div>
+      <span class="asset-pnl" style="color:${tc}">${fmt(p)}</span>
+      <span class="asset-ops">${n}op</span>
+    </div>`;
+  }).join('');
+}
+
+// ── EAs ──
+function renderEAs() {
+  const eas  = [...new Set(OPS.map(o=>o.ea))];
+  document.getElementById('eaList').innerHTML = eas.map(ea=>{
+    const s   = stats(OPS.filter(o=>o.ea===ea));
+    const col = s.total>=0 ? 'var(--green)' : 'var(--red)';
+    return `<div class="ea-row">
+      <div><div class="ea-name">${ea}</div><div class="ea-meta">${s.count} ops · PF ${s.pf>0?s.pf.toFixed(2):'—'}</div></div>
+      <div><div class="ea-pnl" style="color:${col}">${fmt(s.total)}</div><div class="ea-wr">${s.winrate.toFixed(1)}% WR</div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── HEATMAP ──
+function renderHeatmap(allDates, dayPnl) {
+  const maxAbs = Math.max(...Object.values(dayPnl).map(Math.abs));
+  document.getElementById('calGrid').innerHTML = allDates.map(d=>{
+    const p   = dayPnl[d];
+    const int = maxAbs>0 ? Math.abs(p)/maxAbs : 0;
+    const bg  = p>0 ? `rgba(0,179,122,${(0.2+int*0.8).toFixed(2)})`
+              : p<0 ? `rgba(204,32,64,${(0.2+int*0.8).toFixed(2)})`
+              : 'var(--bg4)';
+    return `<div class="cal-day" style="background:${bg}" title="${d.replace('2026.','')} ${fmt(p)}"></div>`;
+  }).join('');
+}
+
+// ── DONUT ──
+function renderDonut() {
+  const buys  = OPS.filter(o=>o.type==='BUY').length;
+  const sells = OPS.filter(o=>o.type==='SELL').length;
+  const other = OPS.filter(o=>o.type==='OUTRO').length;
+  if (donutChart) { donutChart.destroy(); donutChart = null; }
+  const ctx = document.getElementById('donutChart').getContext('2d');
+  donutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['BUY','SELL','Manual'],
+      datasets:[{ data:[buys,sells,other],
+        backgroundColor:['#00b37a','#cc2040','#3b82f6'],
+        borderWidth:0, hoverOffset:4
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, cutout:'68%',
+      plugins:{
+        legend:{ display:true, position:'bottom',
+          labels:{color:'#8892aa',font:{size:11,family:'DM Mono'},boxWidth:10,padding:14}
+        },
+        tooltip:{backgroundColor:'#181b24',borderColor:'#ffffff18',borderWidth:1,
+          titleColor:'#8892aa',bodyColor:'#e2e8f4'}
+      }
+    }
+  });
+}
+
+// ── TABELA ──
+function renderTable() {
+  document.getElementById('opsCount').textContent = OPS.length+' ops total';
+  document.getElementById('opsTable').innerHTML = [...OPS].reverse().slice(0,80).map(o=>{
+    const tc      = o.pnl>=0 ? 'pnl-pos' : 'pnl-neg';
+    const typeBdg = o.type==='BUY'  ? '<span class="type-buy">BUY</span>'
+                  : o.type==='SELL' ? '<span class="type-sell">SELL</span>'
+                  : '<span style="color:var(--muted2);font-size:10px">—</span>';
+    return `<tr>
+      <td>${o.date.replace('2026.','')}</td>
+      <td>${typeBdg}</td>
+      <td>${o.asset}</td>
+      <td style="color:var(--muted2)">${o.ea}</td>
+      <td class="${tc}">${fmt(o.pnl)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── AUTO REFRESH a cada 60 seg ──
+function startAutoRefresh() {
+  setInterval(() => fetchSheets(), 60000);
+}
+
+// ── CSS ANIMATION ──
+const style = document.createElement('style');
+style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(style);
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  fetchSheets();
+  startAutoRefresh();
+});
+
+// ── FUNÇÃO PÚBLICA PARA O BOTÃO ──
+function loadData() { fetchSheets(); }
+</script>
+</body>
+</html>
