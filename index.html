@@ -392,6 +392,25 @@ tbody td{padding:8px 10px;}
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz2oHc7l66T_skzrQz-swCgYvbudiiaw7aUpswhft5TI9kfcT5CYQRmxtQHKZwaYcxo/exec';
 
 let OPS = [];
+
+// ── FORMATAR DATA PT-BR ──
+function fmtDate(str) {
+  if (!str) return '—';
+  // Suporte a formato 2026.04.10 ou objeto Date
+  const parts = String(str).split('.');
+  if (parts.length === 3) {
+    const [y, m, d] = parts;
+    const months = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+    return d + '/' + m + '/' + y;
+  }
+  // Tentar parse de Date
+  const dt = new Date(str);
+  if (!isNaN(dt)) {
+    return dt.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
+  }
+  return str;
+}
+
 let equityChart = null;
 let donutChart  = null;
 let currentEquityTab = 'all';
@@ -544,9 +563,9 @@ function renderKpis(allDates, dayPnl) {
   document.getElementById('kpiWin').textContent      = s.winrate.toFixed(1)+'%';
   document.getElementById('kpiWinSub').textContent   = 'PF: '+s.pf.toFixed(2);
   document.getElementById('kpiBest').textContent     = fmt(best[1]);
-  document.getElementById('kpiBestSub').textContent  = best[0].replace('2026.','');
+  document.getElementById('kpiBestSub').textContent  = fmtDate(best[0]);
   document.getElementById('kpiWorst').textContent    = fmt(worst[1]);
-  document.getElementById('kpiWorstSub').textContent = worst[0].replace('2026.','');
+  document.getElementById('kpiWorstSub').textContent = fmtDate(worst[0]);
 }
 
 // ── TICKER ──
@@ -679,7 +698,7 @@ function renderHeatmap(allDates, dayPnl) {
     const bg  = p>0 ? `rgba(0,179,122,${(0.2+int*0.8).toFixed(2)})`
               : p<0 ? `rgba(204,32,64,${(0.2+int*0.8).toFixed(2)})`
               : 'var(--bg4)';
-    return `<div class="cal-day" style="background:${bg}" title="${d.replace('2026.','')} ${fmt(p)}"></div>`;
+    return `<div class="cal-day" style="background:${bg}" title="${fmtDate(d)} ${fmt(p)}"></div>`;
   }).join('');
 }
 
@@ -721,7 +740,7 @@ function renderTable() {
                   : o.type==='SELL' ? '<span class="type-sell">SELL</span>'
                   : '<span style="color:var(--muted2);font-size:10px">—</span>';
     return `<tr>
-      <td>${o.date.replace('2026.','')}</td>
+      <td>${fmtDate(o.date)}</td>
       <td>${typeBdg}</td>
       <td>${o.asset}</td>
       <td style="color:var(--muted2)">${o.ea}</td>
