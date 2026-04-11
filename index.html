@@ -480,39 +480,44 @@ function parsePnl(str) {
   return parseFloat(str.replace(/[$\s]/g,'').replace(',','.')) || 0;
 }
 
+function normalizeDate(raw) {
+  if (!raw) return '';
+  const s = String(raw).trim();
+  if (s.match(/^\d{4}\.\d{2}\.\d{2}/)) return s.substring(0,10);
+  const dt = new Date(s);
+  if (!isNaN(dt.getTime())) {
+    const y = dt.getFullYear();
+    const m = String(dt.getMonth()+1).padStart(2,'0');
+    const d = String(dt.getDate()).padStart(2,'0');
+    return y+'.'+m+'.'+d;
+  }
+  const br = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+  if (br) return br[3]+'.'+br[2]+'.'+br[1];
+  return s;
+}
+
 function parseCSV(csv) {
   const lines = csv.trim().split('\n').filter(l => l.trim());
-  // Detectar se tem cabeçalho
   const first = lines[0].toLowerCase();
   const hasHeader = first.includes('data') || first.includes('date') || first.includes('tipo');
   const dataLines = hasHeader ? lines.slice(1) : lines;
-
   return dataLines.map(line => {
-    // Suporte a CSV (vírgula) e TSV (tab)
     const sep   = line.includes('\t') ? '\t' : ',';
     const parts = line.split(sep).map(p => p.replace(/^"|"$/g,'').trim());
     const [dateRaw, strategy, asset, , , pnlRaw] = parts;
     if (!dateRaw || !asset) return null;
+    const date = normalizeDate(dateRaw);
+    if (!date) return null;
     const pnl = parsePnl(pnlRaw || parts[3]);
-
-    // Separar data e hora (formato: "2026.04.10 14:32:05" ou só "2026.04.10")
-    const dateParts = dateRaw.trim().split(' ');
-    const date = dateParts[0];
-    const time = dateParts[1] || '';
-
-    // Tipo BUY/SELL
-    let type = '—';
+    let type = 'OUTRO';
     if (strategy && strategy.includes('[BUY]'))       type = 'BUY';
     else if (strategy && strategy.includes('[SELL]')) type = 'SELL';
-
-    // EA
     let ea = 'Manual';
     if (strategy && strategy.includes('H1M1'))          ea = 'H1M1';
     else if (strategy && strategy.includes('M5X'))       ea = 'M5X';
     else if (strategy && strategy.includes('AlphaBot'))  ea = 'MidasJrc EA';
     else if (strategy && strategy.includes('MidasJrc'))  ea = 'MidasJrc EA';
-
-    return { date, time, strategy: strategy||'', asset: asset.trim(), pnl, type, ea };
+    return { date, strategy: strategy||'', asset: asset.trim(), pnl, type, ea };
   }).filter(r => r && !isNaN(r.pnl) && r.date.match(/\d{4}/));
 }
 
