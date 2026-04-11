@@ -430,7 +430,7 @@ function showLoading(show) {
         <div style="width:40px;height:40px;border:2px solid #1a1f2e;border-top:2px solid #00e5a0;
           border-radius:50%;animation:spin 0.8s linear infinite;"></div>
         <div style="font-family:'DM Mono',monospace;font-size:12px;color:#8892aa;letter-spacing:0.1em;">
-          Buscando dados...</div>`;
+          BUSCANDO DADOS DO SHEETS...</div>`;
       document.body.appendChild(ov);
     }
     ov.style.display = 'flex';
@@ -441,7 +441,7 @@ function showLoading(show) {
 
 // ── FETCH CSV DO SHEETS ──
 async function fetchSheets() {
-  document.getElementById('syncLabel').textContent = 'Sincronizando...';
+  document.getElementById('syncLabel').textContent = 'SINCRONIZANDO...';
   showLoading(true);
   try {
     const res = await fetch(SHEETS_URL);
@@ -491,28 +491,18 @@ function parseCSV(csv) {
     // Suporte a CSV (vírgula) e TSV (tab)
     const sep   = line.includes('\t') ? '\t' : ',';
     const parts = line.split(sep).map(p => p.replace(/^"|"$/g,'').trim());
-    const [dateRaw, strategy, asset, , , pnlRaw] = parts;
-    if (!dateRaw || !asset) return null;
+    const [date, strategy, asset, , , pnlRaw] = parts;
+    if (!date || !asset) return null;
     const pnl = parsePnl(pnlRaw || parts[3]);
-
-    // Separar data e hora (formato: "2026.04.10 14:32:05" ou só "2026.04.10")
-    const dateParts = dateRaw.trim().split(' ');
-    const date = dateParts[0];
-    const time = dateParts[1] || '';
-
-    // Tipo BUY/SELL
-    let type = '—';
-    if (strategy && strategy.includes('[BUY]'))       type = 'BUY';
+    let type = 'OUTRO';
+    if (strategy && strategy.includes('[BUY]'))  type = 'BUY';
     else if (strategy && strategy.includes('[SELL]')) type = 'SELL';
-
-    // EA
     let ea = 'Manual';
-    if (strategy && strategy.includes('H1M1'))          ea = 'H1M1';
-    else if (strategy && strategy.includes('M5X'))       ea = 'M5X';
-    else if (strategy && strategy.includes('AlphaBot'))  ea = 'MidasJrc EA';
-    else if (strategy && strategy.includes('MidasJrc'))  ea = 'MidasJrc EA';
-
-    return { date, time, strategy: strategy||'', asset: asset.trim(), pnl, type, ea };
+    if (strategy && strategy.includes('H1M1'))      ea = 'H1M1';
+    else if (strategy && strategy.includes('M5X'))   ea = 'M5X';
+    else if (strategy && strategy.includes('AlphaBot')) ea = 'MidasJrc EA';
+    else if (strategy && strategy.includes('MidasJrc')) ea = 'MidasJrc EA';
+    return { date: date.trim(), strategy: strategy||'', asset: asset.trim(), pnl, type, ea };
   }).filter(r => r && !isNaN(r.pnl) && r.date.match(/\d{4}/));
 }
 
@@ -688,11 +678,7 @@ function renderAssets() {
 
 // ── EAs ──
 function renderEAs() {
-  const eas  = [...new Set(OPS.map(o=>o.ea))].sort((a,b)=>{
-    const pA = sum(OPS.filter(o=>o.ea===a));
-    const pB = sum(OPS.filter(o=>o.ea===b));
-    return pB - pA;
-  });
+  const eas  = [...new Set(OPS.map(o=>o.ea))];
   document.getElementById('eaList').innerHTML = eas.map(ea=>{
     const s   = stats(OPS.filter(o=>o.ea===ea));
     const col = s.total>=0 ? 'var(--green)' : 'var(--red)';
@@ -752,10 +738,9 @@ function renderTable() {
     const tc      = o.pnl>=0 ? 'pnl-pos' : 'pnl-neg';
     const typeBdg = o.type==='BUY'  ? '<span class="type-buy">BUY</span>'
                   : o.type==='SELL' ? '<span class="type-sell">SELL</span>'
-                  : '<span style="color:var(--muted);font-size:10px">—</span>';
-    const dateDisplay = o.time ? fmtDate(o.date) + ' <span style="color:var(--muted2)">' + o.time + '</span>' : fmtDate(o.date);
+                  : '<span style="color:var(--muted2);font-size:10px">—</span>';
     return `<tr>
-      <td>${dateDisplay}</td>
+      <td>${fmtDate(o.date)}</td>
       <td>${typeBdg}</td>
       <td>${o.asset}</td>
       <td style="color:var(--muted2)">${o.ea}</td>
