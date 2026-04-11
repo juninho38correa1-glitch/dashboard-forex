@@ -292,6 +292,7 @@ tbody td{padding:8px 10px;}
         <span class="card-title">Curva de Equity</span>
         <div class="tabs">
           <button class="tab on" onclick="setEquityTab('all',this)">Tudo</button>
+          <button class="tab" onclick="setEquityTab('month',this)">Mês</button>
           <button class="tab" onclick="setEquityTab('week',this)">Semana</button>
           <button class="tab" onclick="setEquityTab('day',this)">Hoje</button>
         </div>
@@ -308,6 +309,7 @@ tbody td{padding:8px 10px;}
         <div class="tabs">
           <button class="tab on" onclick="setPeriodTab('day',this)">Hoje</button>
           <button class="tab" onclick="setPeriodTab('week',this)">Semana</button>
+          <button class="tab" onclick="setPeriodTab('month',this)">Mês</button>
           <button class="tab" onclick="setPeriodTab('all',this)">Total</button>
         </div>
       </div>
@@ -527,6 +529,12 @@ function getWeekDates() {
   const all = [...new Set(OPS.map(o=>o.date))].sort();
   return all.slice(-7);
 }
+function getMonthDates() {
+  const today = getToday();
+  if (!today) return [];
+  const ym = today.substring(0,7); // "2026.04"
+  return [...new Set(OPS.map(o=>o.date))].filter(d => d.startsWith(ym));
+}
 function sum(arr)       { return arr.reduce((a,b)=>a+b.pnl,0); }
 function filterDate(d)  { return OPS.filter(o=>o.date===d); }
 function filterDates(ds){ return OPS.filter(o=>ds.includes(o.date)); }
@@ -599,9 +607,10 @@ function renderTicker() {
 // ── EQUITY CHART ──
 function buildEquityData(tab, TODAY, WEEK_DATES) {
   let ops;
-  if (tab==='all')       ops = [...OPS];
-  else if (tab==='week') ops = [...filterDates(WEEK_DATES)];
-  else                   ops = [...filterDate(TODAY)];
+  if (tab==='all')        ops = [...OPS];
+  else if (tab==='week')  ops = [...filterDates(WEEK_DATES)];
+  else if (tab==='month') ops = [...filterDates(getMonthDates())];
+  else                    ops = [...filterDate(TODAY)];
   let cum = 0;
   return ops.map(o => { cum += o.pnl; return parseFloat(cum.toFixed(2)); });
 }
@@ -653,9 +662,13 @@ function setEquityTab(tab, el) {
 
 // ── PERÍODO ──
 function renderPeriodStats(todayOps, weekOps) {
-  const ops = currentPeriodTab==='day' ? todayOps : currentPeriodTab==='week' ? weekOps : OPS;
+  const monthOps = filterDates(getMonthDates());
+  const ops = currentPeriodTab==='day'   ? todayOps
+            : currentPeriodTab==='week'  ? weekOps
+            : currentPeriodTab==='month' ? monthOps
+            : OPS;
   const s   = stats(ops);
-  const lbl = currentPeriodTab==='day'?'Hoje':currentPeriodTab==='week'?'Semana':'Total';
+  const lbl = currentPeriodTab==='day'?'Hoje':currentPeriodTab==='week'?'Semana':currentPeriodTab==='month'?'Mês':'Total';
   document.getElementById('periodGrid').innerHTML = `
     <div class="ps"><div class="ps-label">P&L ${lbl}</div><div class="ps-val ${s.total>=0?'g':'r'}">${fmt(s.total)}</div></div>
     <div class="ps"><div class="ps-label">Operações</div><div class="ps-val b">${s.count}</div></div>
