@@ -252,16 +252,16 @@ tbody td{padding:8px 10px;}
 <div class="app">
 
 <header>
-  <div class="logo">
-    <div class="logo-mark">JRC</div>
-    <div class="logo-name">Gestão inteligente</div>
+  <div>
+    <div style="font-size:20px;font-weight:700;color:#e2e8f4;letter-spacing:-0.3px;">Gestão inteligente</div>
+    <div style="font-size:10px;color:#2a3040;font-family:var(--mono);margin-top:4px;letter-spacing:0.12em;">JRC · TRADING DASHBOARD</div>
   </div>
-  <div class="header-meta">
-    <div class="last-sync" id="lastSync">Última sync: agora</div>
-    <div class="sync-badge" onclick="loadData()">
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+    <div style="display:flex;align-items:center;gap:5px;">
       <div class="sync-dot"></div>
-      <span id="syncLabel">SINCRONIZADO</span>
+      <span style="font-size:10px;color:#4a5168;font-family:var(--mono);letter-spacing:0.08em;">AO VIVO</span>
     </div>
+    <span class="last-sync" id="lastSync" style="font-size:10px;color:#2a3040;font-family:var(--mono);">sync: agora</span>
   </div>
 </header>
 
@@ -508,11 +508,11 @@ async function fetchSheets() {
     const csv = await res.text();
     OPS = parseCSV(csv);
     renderAll();
-    document.getElementById('syncLabel').textContent = 'SINCRONIZADO';
-    document.getElementById('lastSync').textContent  = 'Última sync: ' + new Date().toLocaleTimeString('pt-BR');
+    document.getElementById('syncLabel') && (document.getElementById('syncLabel').textContent = 'SINCRONIZADO');
+    document.getElementById('lastSync').textContent  = 'sync: ' + new Date().toLocaleTimeString('pt-BR');
   } catch(e) {
-    document.getElementById('syncLabel').textContent = 'ERRO — RETRY';
-    document.getElementById('syncLabel').style.color = '#ff4560';
+    document.getElementById('syncLabel') && (document.getElementById('syncLabel').textContent = 'ERRO — RETRY');
+    document.getElementById('syncLabel') && (document.getElementById('syncLabel').style.color = '#ff4560');
     showError(e.message);
   } finally {
     showLoading(false);
