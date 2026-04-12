@@ -51,10 +51,9 @@ header{
   width:38px;height:38px;border-radius:9px;
   background:linear-gradient(135deg,var(--green2),var(--blue));
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-size:11px;font-weight:500;color:#fff;letter-spacing:0.05em;
+  font-family:var(--mono);font-size:10px;font-weight:500;color:#fff;letter-spacing:0.05em;
 }
 .logo-name{font-size:20px;font-weight:700;letter-spacing:0.02em;}
-.logo-name em{color:var(--green);font-style:normal;}
 .header-meta{display:flex;align-items:center;gap:24px;}
 .sync-badge{
   display:flex;align-items:center;gap:7px;
@@ -67,6 +66,34 @@ header{
 .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 .last-sync{font-family:var(--mono);font-size:11px;color:var(--muted2);}
+
+/* ── FILTRO GLOBAL ── */
+.global-filter-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px;margin-bottom:20px;
+  background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);
+}
+.gf-label{
+  font-family:var(--mono);font-size:10px;color:var(--muted2);
+  letter-spacing:0.12em;text-transform:uppercase;
+}
+.gf-tabs{display:flex;gap:6px;}
+.gf-tab{
+  padding:7px 20px;border-radius:8px;border:1px solid var(--border);cursor:pointer;
+  font-family:var(--display);font-size:12px;font-weight:600;
+  background:transparent;color:var(--muted2);transition:all 0.2s;
+  letter-spacing:0.04em;
+}
+.gf-tab:hover:not(.on){border-color:var(--border2);color:var(--text);}
+.gf-tab.on{
+  background:var(--bg4);color:var(--text);
+  border-color:var(--green);
+  box-shadow:0 0 10px rgba(0,229,160,0.15);
+  color:var(--green);
+}
+.gf-period-info{
+  font-family:var(--mono);font-size:11px;color:var(--muted2);
+}
 
 /* ── KPI ROW ── */
 .kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
@@ -109,16 +136,6 @@ header{
 }
 .card-title{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted2);}
 .card-body{padding:20px;}
-
-/* ── TABS ── */
-.tabs{display:flex;gap:3px;}
-.tab{
-  padding:5px 12px;border-radius:6px;border:none;cursor:pointer;
-  font-family:var(--display);font-size:11px;font-weight:500;
-  background:transparent;color:var(--muted);transition:all 0.2s;
-}
-.tab.on{background:var(--bg4);color:var(--text);border:1px solid var(--border2);}
-.tab:hover:not(.on){color:var(--muted2);}
 
 /* ── CHART ── */
 .chart-wrap{position:relative;height:220px;}
@@ -211,6 +228,8 @@ tbody td{padding:8px 10px;}
 @media(max-width:600px){
   .kpi-row{grid-template-columns:1fr 1fr;}
   .period-grid{grid-template-columns:1fr 1fr;}
+  .gf-tabs{gap:4px;}
+  .gf-tab{padding:6px 12px;font-size:11px;}
 }
 
 /* ── FOOTER ── */
@@ -224,13 +243,9 @@ tbody td{padding:8px 10px;}
   border-top:1px solid var(--border);
   letter-spacing:0.06em;
 }
-.footer a{
-  color:var(--muted2);
-  text-decoration:none;
-  transition:color 0.2s;
-}
-.footer a:hover{ color:var(--green); }
-.footer em{ color:var(--muted2); font-style:normal; }
+.footer a{color:var(--muted2);text-decoration:none;transition:color 0.2s;}
+.footer a:hover{color:var(--green);}
+.footer em{color:var(--muted2);font-style:normal;}
 </style>
 </head>
 <body>
@@ -238,7 +253,7 @@ tbody td{padding:8px 10px;}
 
 <header>
   <div class="logo">
-    <div class="logo-mark">JRC</div>
+    <div class="logo-mark">JRC |</div>
     <div class="logo-name">Gestão inteligente</div>
   </div>
   <div class="header-meta">
@@ -249,6 +264,18 @@ tbody td{padding:8px 10px;}
     </div>
   </div>
 </header>
+
+<!-- FILTRO GLOBAL -->
+<div class="global-filter-bar">
+  <span class="gf-label">📅 Período</span>
+  <div class="gf-tabs">
+    <button class="gf-tab" onclick="setGlobalPeriod('day',this)">Hoje</button>
+    <button class="gf-tab" onclick="setGlobalPeriod('week',this)">Semana</button>
+    <button class="gf-tab" onclick="setGlobalPeriod('month',this)">Mês</button>
+    <button class="gf-tab on" onclick="setGlobalPeriod('all',this)">Total</button>
+  </div>
+  <span class="gf-period-info" id="gfPeriodInfo">Todos os dados</span>
+</div>
 
 <!-- KPIs -->
 <div class="kpi-row">
@@ -290,12 +317,7 @@ tbody td{padding:8px 10px;}
     <div class="card">
       <div class="card-head">
         <span class="card-title">Curva de Equity</span>
-        <div class="tabs">
-          <button class="tab on" onclick="setEquityTab('day',this)">Hoje</button>
-          <button class="tab" onclick="setEquityTab('week',this)">Semana</button>
-          <button class="tab" onclick="setEquityTab('month',this)">Mês</button>
-          <button class="tab" onclick="setEquityTab('all',this)">Total</button>
-        </div>
+        <span id="equityPeriodBadge" style="font-size:10px;color:var(--muted2);font-family:var(--mono)">Total</span>
       </div>
       <div class="card-body">
         <div class="chart-wrap"><canvas id="equityChart" role="img" aria-label="Curva de equity acumulada"></canvas></div>
@@ -305,13 +327,8 @@ tbody td{padding:8px 10px;}
     <!-- Resultado por período -->
     <div class="card">
       <div class="card-head">
-        <span class="card-title">Resultado por Período</span>
-        <div class="tabs">
-          <button class="tab on" onclick="setPeriodTab('day',this)">Hoje</button>
-          <button class="tab" onclick="setPeriodTab('week',this)">Semana</button>
-          <button class="tab" onclick="setPeriodTab('month',this)">Mês</button>
-          <button class="tab" onclick="setPeriodTab('all',this)">Total</button>
-        </div>
+        <span class="card-title">Resultado do Período</span>
+        <span id="periodBadge" style="font-size:10px;color:var(--green);font-family:var(--mono);background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);padding:3px 10px;border-radius:20px;">Total</span>
       </div>
       <div class="card-body">
         <div class="period-grid" id="periodGrid"></div>
@@ -381,12 +398,10 @@ tbody td{padding:8px 10px;}
   </div>
 </div>
 
-
-  <!-- Footer -->
-  <div class="footer">
-    <em>© Junior Corrêa</em> · Todos os direitos reservados
-  </div>
-
+<!-- Footer -->
+<div class="footer">
+  © Junior Corrêa · <em>MidasJrc EA Dashboard</em> · Todos os direitos reservados
+</div>
 
 </div>
 
@@ -394,18 +409,16 @@ tbody td{padding:8px 10px;}
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz2oHc7l66T_skzrQz-swCgYvbudiiaw7aUpswhft5TI9kfcT5CYQRmxtQHKZwaYcxo/exec';
 
 let OPS = [];
+let GLOBAL_PERIOD = 'all'; // filtro global ativo
 
 // ── FORMATAR DATA PT-BR ──
 function fmtDate(str) {
   if (!str) return '—';
-  // Suporte a formato 2026.04.10 ou objeto Date
   const parts = String(str).split('.');
   if (parts.length === 3) {
     const [y, m, d] = parts;
-    const months = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
     return d + '/' + m + '/' + y;
   }
-  // Tentar parse de Date
   const dt = new Date(str);
   if (!isNaN(dt)) {
     return dt.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
@@ -415,12 +428,66 @@ function fmtDate(str) {
 
 let equityChart = null;
 let donutChart  = null;
-let currentEquityTab = 'all';
-let currentPeriodTab = 'day';
+
+// ── FILTRO GLOBAL: retorna operações do período selecionado ──
+function getFilteredOps() {
+  if (GLOBAL_PERIOD === 'all') return OPS;
+
+  const allDates = [...new Set(OPS.map(o => o.date))].sort();
+  const TODAY    = allDates[allDates.length - 1] || '';
+
+  if (GLOBAL_PERIOD === 'day') {
+    return OPS.filter(o => o.date === TODAY);
+  }
+  if (GLOBAL_PERIOD === 'week') {
+    const weekDates = allDates.slice(-7);
+    return OPS.filter(o => weekDates.includes(o.date));
+  }
+  if (GLOBAL_PERIOD === 'month') {
+    const ym = TODAY.substring(0, 7);
+    return OPS.filter(o => o.date.startsWith(ym));
+  }
+  return OPS;
+}
+
+// ── NOME DO PERÍODO ──
+function periodLabel() {
+  if (GLOBAL_PERIOD === 'day')   return 'Hoje';
+  if (GLOBAL_PERIOD === 'week')  return 'Semana';
+  if (GLOBAL_PERIOD === 'month') return 'Mês';
+  return 'Total';
+}
+
+// ── MUDAR PERÍODO GLOBAL ──
+function setGlobalPeriod(tab, el) {
+  GLOBAL_PERIOD = tab;
+  document.querySelectorAll('.gf-tab').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+
+  const ops      = getFilteredOps();
+  const allDates = [...new Set(OPS.map(o => o.date))].sort();
+  const TODAY    = allDates[allDates.length - 1] || '';
+
+  // info lateral
+  const info = {
+    day:   TODAY ? 'Data: ' + fmtDate(TODAY) : '—',
+    week:  allDates.length >= 7 ? fmtDate(allDates[allDates.length-7]) + ' → ' + fmtDate(TODAY) : fmtDate(TODAY),
+    month: TODAY ? TODAY.substring(5,7) + '/' + TODAY.substring(0,4) : '—',
+    all:   'Todos os dados'
+  };
+  document.getElementById('gfPeriodInfo').textContent = info[tab] || 'Todos os dados';
+
+  // badge nos cards
+  const lbl = periodLabel();
+  document.getElementById('equityPeriodBadge').textContent = lbl;
+  document.getElementById('periodBadge').textContent       = lbl;
+
+  // re-renderizar tudo com o filtro
+  renderAllFiltered(ops, allDates, TODAY);
+}
 
 // ── LOADING STATE ──
 function showLoading(show) {
-  const app = document.querySelector('.app');
   let ov = document.getElementById('loadingOverlay');
   if (show) {
     if (!ov) {
@@ -470,7 +537,7 @@ function showError(msg) {
     el.style.cssText = `background:rgba(255,69,96,0.1);border:1px solid rgba(255,69,96,0.3);
       color:#ff4560;font-family:'DM Mono',monospace;font-size:11px;padding:10px 16px;
       border-radius:8px;margin-bottom:16px;`;
-    document.querySelector('.app').insertBefore(el, document.querySelector('.kpi-row'));
+    document.querySelector('.app').insertBefore(el, document.querySelector('.global-filter-bar'));
   }
   el.textContent = '⚠ Erro ao buscar dados: ' + msg + ' — Verifique se a planilha está publicada publicamente.';
   el.style.display = 'block';
@@ -524,67 +591,58 @@ function parseCSV(csv) {
 }
 
 // ── COMPUTED ──
-function getToday()     { const d=[...new Set(OPS.map(o=>o.date))].sort(); return d[d.length-1]||''; }
-function getWeekDates() {
-  const all = [...new Set(OPS.map(o=>o.date))].sort();
-  return all.slice(-7);
-}
-function getMonthDates() {
-  const today = getToday();
-  if (!today) return [];
-  const ym = today.substring(0,7); // "2026.04"
-  return [...new Set(OPS.map(o=>o.date))].filter(d => d.startsWith(ym));
-}
-function sum(arr)       { return arr.reduce((a,b)=>a+b.pnl,0); }
-function filterDate(d)  { return OPS.filter(o=>o.date===d); }
-function filterDates(ds){ return OPS.filter(o=>ds.includes(o.date)); }
-function fmt(v)         { return (v>=0?'+$':'-$') + Math.abs(v).toFixed(2); }
+function sum(arr) { return arr.reduce((a,b) => a + b.pnl, 0); }
+function fmt(v)   { return (v >= 0 ? '+$' : '-$') + Math.abs(v).toFixed(2); }
 
 function stats(ops) {
   const total   = sum(ops);
-  const wins    = ops.filter(o=>o.pnl>0).length;
-  const losses  = ops.filter(o=>o.pnl<0).length;
-  const winrate = ops.length>0 ? wins/ops.length*100 : 0;
-  const avgWin  = wins>0   ? sum(ops.filter(o=>o.pnl>0))/wins   : 0;
-  const avgLoss = losses>0 ? sum(ops.filter(o=>o.pnl<0))/losses : 0;
-  const pf      = Math.abs(avgLoss)>0 ? (avgWin*wins)/(Math.abs(avgLoss)*losses) : 0;
+  const wins    = ops.filter(o => o.pnl > 0).length;
+  const losses  = ops.filter(o => o.pnl < 0).length;
+  const winrate = ops.length > 0 ? wins / ops.length * 100 : 0;
+  const avgWin  = wins   > 0 ? sum(ops.filter(o => o.pnl > 0)) / wins   : 0;
+  const avgLoss = losses > 0 ? sum(ops.filter(o => o.pnl < 0)) / losses : 0;
+  const pf      = Math.abs(avgLoss) > 0 ? (avgWin * wins) / (Math.abs(avgLoss) * losses) : 0;
   return { total, wins, losses, winrate, avgWin, avgLoss, pf, count: ops.length };
 }
 
-// ── RENDER ALL ──
+// ── RENDER ALL (após fetch) ──
 function renderAll() {
-  const allDates = [...new Set(OPS.map(o=>o.date))].sort();
-  const dayPnl   = {};
-  allDates.forEach(d => { dayPnl[d] = sum(filterDate(d)); });
-  const TODAY      = getToday();
-  const WEEK_DATES = getWeekDates();
-  const todayOps   = filterDate(TODAY);
-  const weekOps    = filterDates(WEEK_DATES);
+  const ops      = getFilteredOps();
+  const allDates = [...new Set(OPS.map(o => o.date))].sort();
+  const TODAY    = allDates[allDates.length - 1] || '';
+  renderAllFiltered(ops, allDates, TODAY);
+}
 
-  renderKpis(allDates, dayPnl);
-  renderTicker();
-  renderEquityChart(TODAY, WEEK_DATES);
-  renderPeriodStats(todayOps, weekOps);
-  renderAssets();
-  renderEAs();
-  renderHeatmap(allDates, dayPnl);
-  renderDonut();
-  renderTable();
+// ── RENDER ALL FILTERED ── (chamado sempre que o filtro muda)
+function renderAllFiltered(ops, allDates, TODAY) {
+  const filteredDates = [...new Set(ops.map(o => o.date))].sort();
+  const dayPnl = {};
+  filteredDates.forEach(d => { dayPnl[d] = ops.filter(o => o.date === d).reduce((a,b) => a + b.pnl, 0); });
+
+  renderKpis(ops, filteredDates, dayPnl);
+  renderTicker(ops);
+  renderEquityChart(ops);
+  renderPeriodStats(ops);
+  renderAssets(ops);
+  renderEAs(ops);
+  renderHeatmap(filteredDates, dayPnl);
+  renderDonut(ops);
+  renderTable(ops);
 }
 
 // ── KPIs ──
-function renderKpis(allDates, dayPnl) {
-  const s = stats(OPS);
-  const sorted = Object.entries(dayPnl).sort((a,b)=>b[1]-a[1]);
-  const best   = sorted[0] || ['—', 0];
-  const worst  = sorted[sorted.length-1] || ['—', 0];
+function renderKpis(ops, filteredDates, dayPnl) {
+  const s      = stats(ops);
+  const sorted = Object.entries(dayPnl).sort((a,b) => b[1] - a[1]);
+  const best   = sorted[0]                    || ['—', 0];
+  const worst  = sorted[sorted.length - 1]    || ['—', 0];
 
   document.getElementById('kpiTotal').textContent    = fmt(s.total);
-  document.getElementById('kpiTotalSub').textContent = s.wins+'W / '+s.losses+'L total';
+  document.getElementById('kpiTotalSub').textContent = s.wins + 'W / ' + s.losses + 'L';
   document.getElementById('kpiOps').textContent      = s.count;
-  document.getElementById('kpiOpsSub').textContent   = allDates.length+' dias operados';
-  document.getElementById('kpiWin').textContent      = s.winrate.toFixed(1)+'%';
-  document.getElementById('kpiWinSub').textContent   = 'PF: '+s.pf.toFixed(2);
+  document.getElementById('kpiOpsSub').textContent   = filteredDates.length + ' dias operados';
+  document.getElementById('kpiWin').textContent      = s.winrate.toFixed(1) + '%';
+  document.getElementById('kpiWinSub').textContent   = 'PF: ' + s.pf.toFixed(2);
   document.getElementById('kpiBest').textContent     = fmt(best[1]);
   document.getElementById('kpiBestSub').textContent  = fmtDate(best[0]);
   document.getElementById('kpiWorst').textContent    = fmt(worst[1]);
@@ -592,11 +650,11 @@ function renderKpis(allDates, dayPnl) {
 }
 
 // ── TICKER ──
-function renderTicker() {
-  const assets = [...new Set(OPS.map(o=>o.asset))];
+function renderTicker(ops) {
+  const assets = [...new Set(ops.map(o => o.asset))];
   document.getElementById('tickerBar').innerHTML = assets.map(a => {
-    const p   = sum(OPS.filter(o=>o.asset===a));
-    const col = p>=0 ? 'var(--green)' : 'var(--red)';
+    const p   = sum(ops.filter(o => o.asset === a));
+    const col = p >= 0 ? 'var(--green)' : 'var(--red)';
     return `<div class="ticker-item">
       <span class="ticker-sym">${a}</span>
       <span class="ticker-val" style="color:${col}">${fmt(p)}</span>
@@ -605,27 +663,18 @@ function renderTicker() {
 }
 
 // ── EQUITY CHART ──
-function buildEquityData(tab, TODAY, WEEK_DATES) {
-  let ops;
-  if (tab==='all')        ops = [...OPS];
-  else if (tab==='week')  ops = [...filterDates(WEEK_DATES)];
-  else if (tab==='month') ops = [...filterDates(getMonthDates())];
-  else                    ops = [...filterDate(TODAY)];
+function renderEquityChart(ops) {
   let cum = 0;
-  return ops.map(o => { cum += o.pnl; return parseFloat(cum.toFixed(2)); });
-}
-
-function renderEquityChart(TODAY, WEEK_DATES) {
-  const data  = buildEquityData(currentEquityTab, TODAY, WEEK_DATES);
-  const last  = data[data.length-1] || 0;
-  const color = last>=0 ? '#00e5a0' : '#ff4560';
-  const lbls  = data.map((_,i) => i % Math.max(1, Math.floor(data.length/12))===0 ? i : '');
+  const data = ops.map(o => { cum += o.pnl; return parseFloat(cum.toFixed(2)); });
+  const last  = data[data.length - 1] || 0;
+  const color = last >= 0 ? '#00e5a0' : '#ff4560';
+  const lbls  = data.map((_, i) => i % Math.max(1, Math.floor(data.length / 12)) === 0 ? i : '');
 
   if (equityChart) {
-    equityChart.data.labels = lbls;
-    equityChart.data.datasets[0].data = data;
-    equityChart.data.datasets[0].borderColor = color;
-    equityChart.data.datasets[0].backgroundColor = color+'12';
+    equityChart.data.labels                      = lbls;
+    equityChart.data.datasets[0].data            = data;
+    equityChart.data.datasets[0].borderColor     = color;
+    equityChart.data.datasets[0].backgroundColor = color + '12';
     equityChart.update('none');
     return;
   }
@@ -633,7 +682,7 @@ function renderEquityChart(TODAY, WEEK_DATES) {
   equityChart = new Chart(ctx, {
     type: 'line',
     data: { labels: lbls, datasets:[{
-      data, borderColor: color, backgroundColor: color+'12',
+      data, borderColor: color, backgroundColor: color + '12',
       borderWidth: 2, pointRadius: 0, tension: 0.4, fill: true
     }]},
     options: {
@@ -642,33 +691,20 @@ function renderEquityChart(TODAY, WEEK_DATES) {
       plugins: { legend:{display:false}, tooltip:{
         backgroundColor:'#181b24', borderColor:'#ffffff18', borderWidth:1,
         titleColor:'#8892aa', bodyColor:'#e2e8f4',
-        callbacks:{ label: c => '$'+c.parsed.y.toFixed(2) }
+        callbacks:{ label: c => '$' + c.parsed.y.toFixed(2) }
       }},
       scales: {
-        x: { grid:{color:'#ffffff08'}, ticks:{color:'#4a5168',font:{size:9}} },
-        y: { grid:{color:'#ffffff08'}, ticks:{color:'#4a5168',font:{size:9}, callback: v=>'$'+v.toFixed(0)} }
+        x: { grid:{color:'#ffffff08'}, ticks:{color:'#4a5168', font:{size:9}} },
+        y: { grid:{color:'#ffffff08'}, ticks:{color:'#4a5168', font:{size:9}, callback: v => '$' + v.toFixed(0)} }
       }
     }
   });
 }
 
-function setEquityTab(tab, el) {
-  currentEquityTab = tab;
-  el.closest('.tabs').querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
-  el.classList.add('on');
-  const allDates   = [...new Set(OPS.map(o=>o.date))].sort();
-  renderEquityChart(getToday(), getWeekDates());
-}
-
 // ── PERÍODO ──
-function renderPeriodStats(todayOps, weekOps) {
-  const monthOps = filterDates(getMonthDates());
-  const ops = currentPeriodTab==='day'   ? todayOps
-            : currentPeriodTab==='week'  ? weekOps
-            : currentPeriodTab==='month' ? monthOps
-            : OPS;
+function renderPeriodStats(ops) {
   const s   = stats(ops);
-  const lbl = currentPeriodTab==='day'?'Hoje':currentPeriodTab==='week'?'Semana':currentPeriodTab==='month'?'Mês':'Total';
+  const lbl = periodLabel();
   document.getElementById('periodGrid').innerHTML = `
     <div class="ps"><div class="ps-label">P&L ${lbl}</div><div class="ps-val ${s.total>=0?'g':'r'}">${fmt(s.total)}</div></div>
     <div class="ps"><div class="ps-label">Operações</div><div class="ps-val b">${s.count}</div></div>
@@ -678,23 +714,17 @@ function renderPeriodStats(todayOps, weekOps) {
     <div class="ps"><div class="ps-label">Profit factor</div><div class="ps-val ${s.pf>=1?'g':'r'}">${s.pf>0?s.pf.toFixed(2):'—'}</div></div>`;
 }
 
-function setPeriodTab(tab, el) {
-  currentPeriodTab = tab;
-  el.closest('.tabs').querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
-  el.classList.add('on');
-  renderPeriodStats(filterDate(getToday()), filterDates(getWeekDates()));
-}
-
 // ── ATIVOS ──
-function renderAssets() {
-  const assets = [...new Set(OPS.map(o=>o.asset))];
-  const apnl   = assets.map(a=>({ a, p:sum(OPS.filter(o=>o.asset===a)), n:OPS.filter(o=>o.asset===a).length }))
-    .sort((a,b)=>b.p-a.p);
-  const maxAbs = Math.max(...apnl.map(x=>Math.abs(x.p)));
-  document.getElementById('assetList').innerHTML = apnl.map(({a,p,n})=>{
-    const pct = maxAbs>0 ? Math.abs(p)/maxAbs*100 : 0;
-    const col = p>=0 ? 'var(--green2)' : 'var(--red2)';
-    const tc  = p>=0 ? 'var(--green)'  : 'var(--red)';
+function renderAssets(ops) {
+  const assets = [...new Set(ops.map(o => o.asset))];
+  const apnl   = assets.map(a => ({
+    a, p: sum(ops.filter(o => o.asset === a)), n: ops.filter(o => o.asset === a).length
+  })).sort((a,b) => b.p - a.p);
+  const maxAbs = Math.max(...apnl.map(x => Math.abs(x.p)), 1);
+  document.getElementById('assetList').innerHTML = apnl.map(({a, p, n}) => {
+    const pct = Math.abs(p) / maxAbs * 100;
+    const col = p >= 0 ? 'var(--green2)' : 'var(--red2)';
+    const tc  = p >= 0 ? 'var(--green)'  : 'var(--red)';
     return `<div class="asset-row">
       <span class="asset-name">${a}</span>
       <div class="asset-bar-wrap"><div class="asset-bar" style="width:${pct.toFixed(0)}%;background:${col}"></div></div>
@@ -705,15 +735,13 @@ function renderAssets() {
 }
 
 // ── EAs ──
-function renderEAs() {
-  const eas  = [...new Set(OPS.map(o=>o.ea))].sort((a,b)=>{
-    const pA = sum(OPS.filter(o=>o.ea===a));
-    const pB = sum(OPS.filter(o=>o.ea===b));
-    return pB - pA;
+function renderEAs(ops) {
+  const eas = [...new Set(ops.map(o => o.ea))].sort((a, b) => {
+    return sum(ops.filter(o => o.ea === b)) - sum(ops.filter(o => o.ea === a));
   });
-  document.getElementById('eaList').innerHTML = eas.map(ea=>{
-    const s   = stats(OPS.filter(o=>o.ea===ea));
-    const col = s.total>=0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('eaList').innerHTML = eas.map(ea => {
+    const s   = stats(ops.filter(o => o.ea === ea));
+    const col = s.total >= 0 ? 'var(--green)' : 'var(--red)';
     return `<div class="ea-row">
       <div><div class="ea-name">${ea}</div><div class="ea-meta">${s.count} ops · PF ${s.pf>0?s.pf.toFixed(2):'—'}</div></div>
       <div><div class="ea-pnl" style="color:${col}">${fmt(s.total)}</div><div class="ea-wr">${s.winrate.toFixed(1)}% WR</div></div>
@@ -722,30 +750,30 @@ function renderEAs() {
 }
 
 // ── HEATMAP ──
-function renderHeatmap(allDates, dayPnl) {
-  const maxAbs = Math.max(...Object.values(dayPnl).map(Math.abs));
-  document.getElementById('calGrid').innerHTML = allDates.map(d=>{
+function renderHeatmap(filteredDates, dayPnl) {
+  const maxAbs = Math.max(...Object.values(dayPnl).map(Math.abs), 1);
+  document.getElementById('calGrid').innerHTML = filteredDates.map(d => {
     const p   = dayPnl[d];
-    const int = maxAbs>0 ? Math.abs(p)/maxAbs : 0;
-    const bg  = p>0 ? `rgba(0,179,122,${(0.2+int*0.8).toFixed(2)})`
-              : p<0 ? `rgba(204,32,64,${(0.2+int*0.8).toFixed(2)})`
+    const int = Math.abs(p) / maxAbs;
+    const bg  = p > 0 ? `rgba(0,179,122,${(0.2 + int * 0.8).toFixed(2)})`
+              : p < 0 ? `rgba(204,32,64,${(0.2 + int * 0.8).toFixed(2)})`
               : 'var(--bg4)';
     return `<div class="cal-day" style="background:${bg}" title="${fmtDate(d)} ${fmt(p)}"></div>`;
   }).join('');
 }
 
 // ── DONUT ──
-function renderDonut() {
-  const buys  = OPS.filter(o=>o.type==='BUY').length;
-  const sells = OPS.filter(o=>o.type==='SELL').length;
-  const other = OPS.filter(o=>o.type==='OUTRO').length;
+function renderDonut(ops) {
+  const buys  = ops.filter(o => o.type === 'BUY').length;
+  const sells = ops.filter(o => o.type === 'SELL').length;
+  const other = ops.filter(o => o.type === 'OUTRO').length;
   if (donutChart) { donutChart.destroy(); donutChart = null; }
   const ctx = document.getElementById('donutChart').getContext('2d');
   donutChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: ['BUY','SELL','Manual'],
-      datasets:[{ data:[buys,sells,other],
+      labels: ['BUY', 'SELL', 'Manual'],
+      datasets:[{ data:[buys, sells, other],
         backgroundColor:['#00b37a','#cc2040','#3b82f6'],
         borderWidth:0, hoverOffset:4
       }]
@@ -754,26 +782,25 @@ function renderDonut() {
       responsive:true, maintainAspectRatio:false, cutout:'68%',
       plugins:{
         legend:{ display:true, position:'bottom',
-          labels:{color:'#8892aa',font:{size:11,family:'DM Mono'},boxWidth:10,padding:14}
+          labels:{color:'#8892aa', font:{size:11, family:'DM Mono'}, boxWidth:10, padding:14}
         },
-        tooltip:{backgroundColor:'#181b24',borderColor:'#ffffff18',borderWidth:1,
-          titleColor:'#8892aa',bodyColor:'#e2e8f4'}
+        tooltip:{backgroundColor:'#181b24', borderColor:'#ffffff18', borderWidth:1,
+          titleColor:'#8892aa', bodyColor:'#e2e8f4'}
       }
     }
   });
 }
 
 // ── TABELA ──
-function renderTable() {
-  document.getElementById('opsCount').textContent = OPS.length+' ops total';
-  document.getElementById('opsTable').innerHTML = [...OPS].reverse().slice(0,80).map(o=>{
-    const tc      = o.pnl>=0 ? 'pnl-pos' : 'pnl-neg';
-    const typeBdg = o.type==='BUY'  ? '<span class="type-buy">BUY</span>'
-                  : o.type==='SELL' ? '<span class="type-sell">SELL</span>'
+function renderTable(ops) {
+  document.getElementById('opsCount').textContent = ops.length + ' ops';
+  document.getElementById('opsTable').innerHTML = [...ops].reverse().slice(0, 80).map(o => {
+    const tc      = o.pnl >= 0 ? 'pnl-pos' : 'pnl-neg';
+    const typeBdg = o.type === 'BUY'  ? '<span class="type-buy">BUY</span>'
+                  : o.type === 'SELL' ? '<span class="type-sell">SELL</span>'
                   : '<span style="color:var(--muted);font-size:10px">—</span>';
-    const dateDisplay = o.time ? fmtDate(o.date) + ' <span style="color:var(--muted2)">' + o.time + '</span>' : fmtDate(o.date);
     return `<tr>
-      <td>${dateDisplay}</td>
+      <td>${fmtDate(o.date)}</td>
       <td>${typeBdg}</td>
       <td>${o.asset}</td>
       <td style="color:var(--muted2)">${o.ea}</td>
@@ -782,7 +809,7 @@ function renderTable() {
   }).join('');
 }
 
-// ── AUTO REFRESH a cada 60 seg ──
+// ── AUTO REFRESH ──
 function startAutoRefresh() {
   setInterval(() => fetchSheets(), 60000);
 }
@@ -798,7 +825,6 @@ document.addEventListener('DOMContentLoaded', () => {
   startAutoRefresh();
 });
 
-// ── FUNÇÃO PÚBLICA PARA O BOTÃO ──
 function loadData() { fetchSheets(); }
 </script>
 </body>
