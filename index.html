@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MidasJrc — Trading Dashboard</title>
+<title>JRC · Trading Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Clash+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -399,7 +399,7 @@ tbody td{padding:8px 10px;}
     <div class="ops-wrap">
       <table>
         <thead><tr>
-          <th>Mês</th><th style="text-align:right;">Ops</th><th style="text-align:right;">Winrate</th><th style="text-align:right;">Média Win</th><th style="text-align:right;">Média Loss</th><th style="text-align:right;">P&L</th>
+          <th>Mês</th><th style="text-align:right;">Ops</th><th style="text-align:right;">Winrate</th><th style="text-align:right;">P&L</th>
         </tr></thead>
         <tbody id="monthlyTable"></tbody>
       </table>
@@ -809,8 +809,6 @@ function renderMonthly() {
       <td style="font-weight:500;color:var(--text)">${label}</td>
       <td style="text-align:right;color:var(--muted2)">${s.count}</td>
       <td style="text-align:right;color:${wc}">${s.winrate.toFixed(1)}%</td>
-      <td style="text-align:right;color:var(--green)">${s.wins > 0 ? '+$' + s.avgWin.toFixed(2) : '—'}</td>
-      <td style="text-align:right;color:var(--red)">${s.losses > 0 ? '-$' + Math.abs(s.avgLoss).toFixed(2) : '—'}</td>
       <td style="text-align:right" class="${tc}">${fmt(s.total)}</td>
     </tr>`;
   }).join('');
