@@ -253,7 +253,7 @@ tbody td{padding:8px 10px;}
 
 <header>
   <div class="logo">
-    <div class="logo-mark">JRC |</div>
+    <div class="logo-mark">JRC</div>
     <div class="logo-name">Gestão inteligente</div>
   </div>
   <div class="header-meta">
@@ -385,16 +385,6 @@ tbody td{padding:8px 10px;}
       </div>
     </div>
 
-    <!-- Distribuição BUY vs SELL -->
-    <div class="card">
-      <div class="card-head"><span class="card-title">BUY vs SELL</span></div>
-      <div class="card-body">
-        <div style="position:relative;height:160px;">
-          <canvas id="donutChart" role="img" aria-label="Distribuição BUY vs SELL"></canvas>
-        </div>
-      </div>
-    </div>
-
   </div>
 </div>
 
@@ -427,7 +417,7 @@ function fmtDate(str) {
 }
 
 let equityChart = null;
-let donutChart  = null;
+
 
 // ── FILTRO GLOBAL: retorna operações do período selecionado ──
 function getFilteredOps() {
@@ -626,7 +616,6 @@ function renderAllFiltered(ops, allDates, TODAY) {
   renderAssets(ops);
   renderEAs(ops);
   renderHeatmap(filteredDates, dayPnl);
-  renderDonut(ops);
   renderTable(ops);
 }
 
@@ -751,44 +740,23 @@ function renderEAs(ops) {
 
 // ── HEATMAP ──
 function renderHeatmap(filteredDates, dayPnl) {
-  const maxAbs = Math.max(...Object.values(dayPnl).map(Math.abs), 1);
+  const vals   = Object.values(dayPnl);
+  const maxPos = Math.max(...vals.filter(v => v > 0), 0.01);
+  const maxNeg = Math.max(...vals.filter(v => v < 0).map(Math.abs), 0.01);
   document.getElementById('calGrid').innerHTML = filteredDates.map(d => {
-    const p   = dayPnl[d];
-    const int = Math.abs(p) / maxAbs;
-    const bg  = p > 0 ? `rgba(0,179,122,${(0.2 + int * 0.8).toFixed(2)})`
-              : p < 0 ? `rgba(204,32,64,${(0.2 + int * 0.8).toFixed(2)})`
-              : 'var(--bg4)';
+    const p = dayPnl[d];
+    let bg;
+    if (p > 0) {
+      const intensity = Math.min(p / maxPos, 1);
+      bg = `rgba(0,179,122,${(0.25 + intensity * 0.75).toFixed(2)})`;
+    } else if (p < 0) {
+      const intensity = Math.min(Math.abs(p) / maxNeg, 1);
+      bg = `rgba(204,32,64,${(0.25 + intensity * 0.75).toFixed(2)})`;
+    } else {
+      bg = 'var(--bg4)';
+    }
     return `<div class="cal-day" style="background:${bg}" title="${fmtDate(d)} ${fmt(p)}"></div>`;
   }).join('');
-}
-
-// ── DONUT ──
-function renderDonut(ops) {
-  const buys  = ops.filter(o => o.type === 'BUY').length;
-  const sells = ops.filter(o => o.type === 'SELL').length;
-  const other = ops.filter(o => o.type === 'OUTRO').length;
-  if (donutChart) { donutChart.destroy(); donutChart = null; }
-  const ctx = document.getElementById('donutChart').getContext('2d');
-  donutChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['BUY', 'SELL', 'Manual'],
-      datasets:[{ data:[buys, sells, other],
-        backgroundColor:['#00b37a','#cc2040','#3b82f6'],
-        borderWidth:0, hoverOffset:4
-      }]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false, cutout:'68%',
-      plugins:{
-        legend:{ display:true, position:'bottom',
-          labels:{color:'#8892aa', font:{size:11, family:'DM Mono'}, boxWidth:10, padding:14}
-        },
-        tooltip:{backgroundColor:'#181b24', borderColor:'#ffffff18', borderWidth:1,
-          titleColor:'#8892aa', bodyColor:'#e2e8f4'}
-      }
-    }
-  });
 }
 
 // ── TABELA ──
