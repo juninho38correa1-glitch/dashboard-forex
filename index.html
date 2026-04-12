@@ -270,6 +270,7 @@ tbody td{padding:8px 10px;}
   <span class="gf-label">📅 Período</span>
   <div class="gf-tabs">
     <button class="gf-tab" onclick="setGlobalPeriod('day',this)">Hoje</button>
+    <button class="gf-tab" onclick="setGlobalPeriod('yesterday',this)">Ontem</button>
     <button class="gf-tab" onclick="setGlobalPeriod('week',this)">Semana</button>
     <button class="gf-tab" onclick="setGlobalPeriod('month',this)">Mês</button>
     <button class="gf-tab on" onclick="setGlobalPeriod('all',this)">Total</button>
@@ -429,6 +430,10 @@ function getFilteredOps() {
   if (GLOBAL_PERIOD === 'day') {
     return OPS.filter(o => o.date === TODAY);
   }
+  if (GLOBAL_PERIOD === 'yesterday') {
+    const yesterday = allDates[allDates.length - 2] || '';
+    return OPS.filter(o => o.date === yesterday);
+  }
   if (GLOBAL_PERIOD === 'week') {
     const weekDates = allDates.slice(-7);
     return OPS.filter(o => weekDates.includes(o.date));
@@ -442,8 +447,9 @@ function getFilteredOps() {
 
 // ── NOME DO PERÍODO ──
 function periodLabel() {
-  if (GLOBAL_PERIOD === 'day')   return 'Hoje';
-  if (GLOBAL_PERIOD === 'week')  return 'Semana';
+  if (GLOBAL_PERIOD === 'day')       return 'Hoje';
+  if (GLOBAL_PERIOD === 'yesterday') return 'Ontem';
+  if (GLOBAL_PERIOD === 'week')      return 'Semana';
   if (GLOBAL_PERIOD === 'month') return 'Mês';
   return 'Total';
 }
@@ -459,8 +465,10 @@ function setGlobalPeriod(tab, el) {
   const TODAY    = allDates[allDates.length - 1] || '';
 
   // info lateral
+  const yesterday = allDates[allDates.length - 2] || '';
   const info = {
-    day:   TODAY ? 'Data: ' + fmtDate(TODAY) : '—',
+    day:       TODAY     ? 'Data: ' + fmtDate(TODAY)     : '—',
+    yesterday: yesterday ? 'Data: ' + fmtDate(yesterday) : '—',
     week:  allDates.length >= 7 ? fmtDate(allDates[allDates.length-7]) + ' → ' + fmtDate(TODAY) : fmtDate(TODAY),
     month: TODAY ? TODAY.substring(5,7) + '/' + TODAY.substring(0,4) : '—',
     all:   'Todos os dados'
