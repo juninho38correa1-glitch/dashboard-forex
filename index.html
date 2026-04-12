@@ -389,6 +389,24 @@ tbody td{padding:8px 10px;}
   </div>
 </div>
 
+<!-- P&L Mensal -->
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-head">
+    <span class="card-title">P&L por Mês</span>
+    <span style="font-size:10px;color:var(--muted2);font-family:var(--mono)" id="monthlyCount"></span>
+  </div>
+  <div class="card-body" style="padding:0;">
+    <div class="ops-wrap">
+      <table>
+        <thead><tr>
+          <th>Mês</th><th style="text-align:right;">Ops</th><th style="text-align:right;">Winrate</th><th style="text-align:right;">Média Win</th><th style="text-align:right;">Média Loss</th><th style="text-align:right;">P&L</th>
+        </tr></thead>
+        <tbody id="monthlyTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <!-- Footer -->
 <div class="footer">
   © Junior Corrêa · Todos os direitos reservados
@@ -625,6 +643,7 @@ function renderAllFiltered(ops, allDates, TODAY) {
   renderAssets(ops);
   renderEAs(ops);
   renderHeatmap(filteredDates, dayPnl);
+  renderMonthly();
   renderTable(ops);
 }
 
@@ -765,6 +784,35 @@ function renderHeatmap(filteredDates, dayPnl) {
       bg = 'var(--bg4)';
     }
     return `<div class="cal-day" style="background:${bg}" title="${fmtDate(d)} ${fmt(p)}"></div>`;
+  }).join('');
+}
+
+// ── MENSAL ──
+function renderMonthly() {
+  const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const monthMap = {};
+  OPS.forEach(o => {
+    const ym = o.date.substring(0, 7); // "2026.04"
+    if (!monthMap[ym]) monthMap[ym] = [];
+    monthMap[ym].push(o);
+  });
+  const sorted = Object.keys(monthMap).sort();
+  document.getElementById('monthlyCount').textContent = sorted.length + ' meses';
+  document.getElementById('monthlyTable').innerHTML = sorted.reverse().map(ym => {
+    const ops  = monthMap[ym];
+    const s    = stats(ops);
+    const [y, m] = ym.split('.');
+    const label  = MONTHS[parseInt(m) - 1] + ' ' + y;
+    const tc     = s.total >= 0 ? 'pnl-pos' : 'pnl-neg';
+    const wc     = s.winrate >= 50 ? 'var(--green)' : s.winrate >= 40 ? 'var(--gold)' : 'var(--red)';
+    return `<tr>
+      <td style="font-weight:500;color:var(--text)">${label}</td>
+      <td style="text-align:right;color:var(--muted2)">${s.count}</td>
+      <td style="text-align:right;color:${wc}">${s.winrate.toFixed(1)}%</td>
+      <td style="text-align:right;color:var(--green)">${s.wins > 0 ? '+$' + s.avgWin.toFixed(2) : '—'}</td>
+      <td style="text-align:right;color:var(--red)">${s.losses > 0 ? '-$' + Math.abs(s.avgLoss).toFixed(2) : '—'}</td>
+      <td style="text-align:right" class="${tc}">${fmt(s.total)}</td>
+    </tr>`;
   }).join('');
 }
 
