@@ -257,11 +257,11 @@ tbody td{padding:8px 10px;}
     <div style="font-size:10px;color:#2a3040;font-family:var(--mono);margin-top:4px;letter-spacing:0.12em;">JRC · TRADING DASHBOARD</div>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-    <div style="display:flex;align-items:center;gap:5px;">
+    <div class="sync-badge" onclick="loadData()" style="display:flex;align-items:center;gap:5px;cursor:pointer;">
       <div class="sync-dot"></div>
-      <span style="font-size:10px;color:#4a5168;font-family:var(--mono);letter-spacing:0.08em;">AO VIVO</span>
+      <span id="syncLabel" style="font-size:10px;color:#00e5a0;font-family:var(--mono);letter-spacing:0.08em;">SINCRONIZADO</span>
     </div>
-    <span class="last-sync" id="lastSync" style="font-size:10px;color:#2a3040;font-family:var(--mono);">sync: agora</span>
+    <span id="lastSync" style="font-size:10px;color:#2a3040;font-family:var(--mono);">sync: agora</span>
   </div>
 </header>
 
@@ -508,11 +508,12 @@ async function fetchSheets() {
     const csv = await res.text();
     OPS = parseCSV(csv);
     renderAll();
-    document.getElementById('syncLabel') && (document.getElementById('syncLabel').textContent = 'SINCRONIZADO');
+    document.getElementById('syncLabel').textContent = 'SINCRONIZADO';
+    document.getElementById('syncLabel').style.color = '#00e5a0';
     document.getElementById('lastSync').textContent  = 'sync: ' + new Date().toLocaleTimeString('pt-BR');
   } catch(e) {
-    document.getElementById('syncLabel') && (document.getElementById('syncLabel').textContent = 'ERRO — RETRY');
-    document.getElementById('syncLabel') && (document.getElementById('syncLabel').style.color = '#ff4560');
+    document.getElementById('syncLabel').textContent = 'ERRO — RETRY';
+    document.getElementById('syncLabel').style.color = '#ff4560';
     showError(e.message);
   } finally {
     showLoading(false);
