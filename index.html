@@ -275,6 +275,24 @@ tbody td{padding:8px 10px;}
     <button class="gf-tab" onclick="setGlobalPeriod('month',this)">Mês</button>
     <button class="gf-tab on" onclick="setGlobalPeriod('all',this)">Total</button>
   </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span class="gf-label">📊 Paridade</span>
+    <select id="assetFilter" onchange="setAssetFilter(this.value)"
+      style="background:var(--bg4);border:1px solid var(--border2);border-radius:8px;
+      color:var(--text);font-family:var(--mono);font-size:11px;padding:6px 12px;
+      cursor:pointer;outline:none;letter-spacing:0.05em;">
+      <option value="all">Todos os pares</option>
+    </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span class="gf-label">🤖 Estratégia</span>
+    <select id="eaFilter" onchange="setEaFilter(this.value)"
+      style="background:var(--bg4);border:1px solid var(--border2);border-radius:8px;
+      color:var(--text);font-family:var(--mono);font-size:11px;padding:6px 12px;
+      cursor:pointer;outline:none;letter-spacing:0.05em;">
+      <option value="all">Todas as estratégias</option>
+    </select>
+  </div>
   <span class="gf-period-info" id="gfPeriodInfo">Todos os dados</span>
 </div>
 
@@ -418,7 +436,45 @@ tbody td{padding:8px 10px;}
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz2oHc7l66T_skzrQz-swCgYvbudiiaw7aUpswhft5TI9kfcT5CYQRmxtQHKZwaYcxo/exec';
 
 let OPS = [];
-let GLOBAL_PERIOD = 'all'; // filtro global ativo
+let GLOBAL_PERIOD = 'all';
+let GLOBAL_ASSET  = 'all';
+let GLOBAL_EA     = 'all';
+
+// ── FILTRO DE PARIDADE ──
+function setAssetFilter(val) {
+  GLOBAL_ASSET = val;
+  const ops      = getFilteredOps();
+  const allDates = [...new Set(OPS.map(o => o.date))].sort();
+  const TODAY    = allDates[allDates.length - 1] || '';
+  renderAllFiltered(ops, allDates, TODAY);
+}
+
+// ── FILTRO DE ESTRATÉGIA ──
+function setEaFilter(val) {
+  GLOBAL_EA = val;
+  const ops      = getFilteredOps();
+  const allDates = [...new Set(OPS.map(o => o.date))].sort();
+  const TODAY    = allDates[allDates.length - 1] || '';
+  renderAllFiltered(ops, allDates, TODAY);
+}
+
+// ── POPULAR DROPDOWN DE PARIDADES ──
+function populateAssetDropdown() {
+  const assets = [...new Set(OPS.map(o => o.asset))].sort();
+  const sel    = document.getElementById('assetFilter');
+  sel.innerHTML = '<option value="all">Todos os pares</option>' +
+    assets.map(a => `<option value="${a}">${a}</option>`).join('');
+  sel.value = GLOBAL_ASSET;
+}
+
+// ── POPULAR DROPDOWN DE ESTRATÉGIAS ──
+function populateEaDropdown() {
+  const eas = [...new Set(OPS.map(o => o.ea))].sort();
+  const sel = document.getElementById('eaFilter');
+  sel.innerHTML = '<option value="all">Todas as estratégias</option>' +
+    eas.map(e => `<option value="${e}">${e}</option>`).join('');
+  sel.value = GLOBAL_EA;
+} // filtro global ativo
 
 // ── FORMATAR DATA PT-BR ──
 function fmtDate(str) {
@@ -438,29 +494,23 @@ function fmtDate(str) {
 let equityChart = null;
 
 
-// ── FILTRO GLOBAL: retorna operações do período selecionado ──
+// ── FILTRO GLOBAL: retorna operações do período e paridade selecionados ──
 function getFilteredOps() {
-  if (GLOBAL_PERIOD === 'all') return OPS;
+  let ops = OPS;
+  if (GLOBAL_ASSET !== 'all') ops = ops.filter(o => o.asset === GLOBAL_ASSET);
+  if (GLOBAL_EA    !== 'all') ops = ops.filter(o => o.ea    === GLOBAL_EA);
 
   const allDates = [...new Set(OPS.map(o => o.date))].sort();
   const TODAY    = allDates[allDates.length - 1] || '';
 
-  if (GLOBAL_PERIOD === 'day') {
-    return OPS.filter(o => o.date === TODAY);
-  }
+  if (GLOBAL_PERIOD === 'day')       return ops.filter(o => o.date === TODAY);
   if (GLOBAL_PERIOD === 'yesterday') {
     const yesterday = allDates[allDates.length - 2] || '';
-    return OPS.filter(o => o.date === yesterday);
+    return ops.filter(o => o.date === yesterday);
   }
-  if (GLOBAL_PERIOD === 'week') {
-    const weekDates = allDates.slice(-7);
-    return OPS.filter(o => weekDates.includes(o.date));
-  }
-  if (GLOBAL_PERIOD === 'month') {
-    const ym = TODAY.substring(0, 7);
-    return OPS.filter(o => o.date.startsWith(ym));
-  }
-  return OPS;
+  if (GLOBAL_PERIOD === 'week')  return ops.filter(o => allDates.slice(-7).includes(o.date));
+  if (GLOBAL_PERIOD === 'month') { const ym = TODAY.substring(0,7); return ops.filter(o => o.date.startsWith(ym)); }
+  return ops;
 }
 
 // ── NOME DO PERÍODO ──
@@ -533,6 +583,8 @@ async function fetchSheets() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const csv = await res.text();
     OPS = parseCSV(csv);
+    populateAssetDropdown();
+    populateEaDropdown();
     renderAll();
     document.getElementById('syncLabel').textContent = 'SINCRONIZADO';
     document.getElementById('syncLabel').style.color = '#00e5a0';
