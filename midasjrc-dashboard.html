@@ -284,6 +284,15 @@ tbody td{padding:8px 10px;}
       <option value="all">Todos os pares</option>
     </select>
   </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span class="gf-label">🤖 Estratégia</span>
+    <select id="eaFilter" onchange="setEaFilter(this.value)"
+      style="background:var(--bg4);border:1px solid var(--border2);border-radius:8px;
+      color:var(--text);font-family:var(--mono);font-size:11px;padding:6px 12px;
+      cursor:pointer;outline:none;letter-spacing:0.05em;">
+      <option value="all">Todas as estratégias</option>
+    </select>
+  </div>
   <span class="gf-period-info" id="gfPeriodInfo">Todos os dados</span>
 </div>
 
@@ -429,10 +438,20 @@ const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz2oHc7l66T_skzrQz-s
 let OPS = [];
 let GLOBAL_PERIOD = 'all';
 let GLOBAL_ASSET  = 'all';
+let GLOBAL_EA     = 'all';
 
 // ── FILTRO DE PARIDADE ──
 function setAssetFilter(val) {
   GLOBAL_ASSET = val;
+  const ops      = getFilteredOps();
+  const allDates = [...new Set(OPS.map(o => o.date))].sort();
+  const TODAY    = allDates[allDates.length - 1] || '';
+  renderAllFiltered(ops, allDates, TODAY);
+}
+
+// ── FILTRO DE ESTRATÉGIA ──
+function setEaFilter(val) {
+  GLOBAL_EA = val;
   const ops      = getFilteredOps();
   const allDates = [...new Set(OPS.map(o => o.date))].sort();
   const TODAY    = allDates[allDates.length - 1] || '';
@@ -446,6 +465,15 @@ function populateAssetDropdown() {
   sel.innerHTML = '<option value="all">Todos os pares</option>' +
     assets.map(a => `<option value="${a}">${a}</option>`).join('');
   sel.value = GLOBAL_ASSET;
+}
+
+// ── POPULAR DROPDOWN DE ESTRATÉGIAS ──
+function populateEaDropdown() {
+  const eas = [...new Set(OPS.map(o => o.ea))].sort();
+  const sel = document.getElementById('eaFilter');
+  sel.innerHTML = '<option value="all">Todas as estratégias</option>' +
+    eas.map(e => `<option value="${e}">${e}</option>`).join('');
+  sel.value = GLOBAL_EA;
 } // filtro global ativo
 
 // ── FORMATAR DATA PT-BR ──
@@ -468,7 +496,9 @@ let equityChart = null;
 
 // ── FILTRO GLOBAL: retorna operações do período e paridade selecionados ──
 function getFilteredOps() {
-  let ops = GLOBAL_ASSET === 'all' ? OPS : OPS.filter(o => o.asset === GLOBAL_ASSET);
+  let ops = OPS;
+  if (GLOBAL_ASSET !== 'all') ops = ops.filter(o => o.asset === GLOBAL_ASSET);
+  if (GLOBAL_EA    !== 'all') ops = ops.filter(o => o.ea    === GLOBAL_EA);
 
   const allDates = [...new Set(OPS.map(o => o.date))].sort();
   const TODAY    = allDates[allDates.length - 1] || '';
@@ -554,6 +584,7 @@ async function fetchSheets() {
     const csv = await res.text();
     OPS = parseCSV(csv);
     populateAssetDropdown();
+    populateEaDropdown();
     renderAll();
     document.getElementById('syncLabel').textContent = 'SINCRONIZADO';
     document.getElementById('syncLabel').style.color = '#00e5a0';
