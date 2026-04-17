@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -32,94 +33,94 @@
 html,body{background:var(--bg);color:var(--text);font-family:var(--display);min-height:100vh;overflow-x:hidden;}
 
 body::before{
-  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(ellipse 600px 400px at 10% 20%, rgba(0,229,160,0.04) 0%, transparent 70%),
-    radial-gradient(ellipse 500px 300px at 90% 80%, rgba(59,130,246,0.04) 0%, transparent 70%);
+content:’’;position:fixed;inset:0;z-index:0;pointer-events:none;
+background:
+radial-gradient(ellipse 600px 400px at 10% 20%, rgba(0,229,160,0.04) 0%, transparent 70%),
+radial-gradient(ellipse 500px 300px at 90% 80%, rgba(59,130,246,0.04) 0%, transparent 70%);
 }
 
 .app{position:relative;z-index:1;max-width:1480px;margin:0 auto;padding:20px;}
 
 /* ── HEADER ── */
 header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:16px 24px;margin-bottom:20px;
-  background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);
+display:flex;align-items:center;justify-content:space-between;
+padding:16px 24px;margin-bottom:20px;
+background:var(–bg2);border:1px solid var(–border2);border-radius:var(–r);
 }
 .logo{display:flex;align-items:center;gap:12px;}
 .logo-mark{
-  width:38px;height:38px;border-radius:9px;
-  background:linear-gradient(135deg,var(--green2),var(--blue));
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-size:10px;font-weight:500;color:#fff;letter-spacing:0.05em;
+width:38px;height:38px;border-radius:9px;
+background:linear-gradient(135deg,var(–green2),var(–blue));
+display:flex;align-items:center;justify-content:center;
+font-family:var(–mono);font-size:10px;font-weight:500;color:#fff;letter-spacing:0.05em;
 }
 .logo-name{font-size:20px;font-weight:700;letter-spacing:0.02em;}
 .header-meta{display:flex;align-items:center;gap:24px;}
 .sync-badge{
-  display:flex;align-items:center;gap:7px;
-  font-family:var(--mono);font-size:11px;color:var(--green);
-  background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);
-  padding:5px 12px;border-radius:20px;cursor:pointer;
-  transition:all 0.2s;
+display:flex;align-items:center;gap:7px;
+font-family:var(–mono);font-size:11px;color:var(–green);
+background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);
+padding:5px 12px;border-radius:20px;cursor:pointer;
+transition:all 0.2s;
 }
 .sync-badge:hover{background:rgba(0,229,160,0.15);}
-.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite;}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(–green);animation:blink 2s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-.last-sync{font-family:var(--mono);font-size:11px;color:var(--muted2);}
+.last-sync{font-family:var(–mono);font-size:11px;color:var(–muted2);}
 
 /* ── FILTRO GLOBAL ── */
 .global-filter-bar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px 20px;margin-bottom:20px;
-  background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);
+display:flex;align-items:center;justify-content:space-between;
+padding:12px 20px;margin-bottom:20px;
+background:var(–bg2);border:1px solid var(–border2);border-radius:var(–r);
 }
 .gf-label{
-  font-family:var(--mono);font-size:10px;color:var(--muted2);
-  letter-spacing:0.12em;text-transform:uppercase;
+font-family:var(–mono);font-size:10px;color:var(–muted2);
+letter-spacing:0.12em;text-transform:uppercase;
 }
 .gf-tabs{display:flex;gap:6px;}
 .gf-tab{
-  padding:7px 20px;border-radius:8px;border:1px solid var(--border);cursor:pointer;
-  font-family:var(--display);font-size:12px;font-weight:600;
-  background:transparent;color:var(--muted2);transition:all 0.2s;
-  letter-spacing:0.04em;
+padding:7px 20px;border-radius:8px;border:1px solid var(–border);cursor:pointer;
+font-family:var(–display);font-size:12px;font-weight:600;
+background:transparent;color:var(–muted2);transition:all 0.2s;
+letter-spacing:0.04em;
 }
-.gf-tab:hover:not(.on){border-color:var(--border2);color:var(--text);}
+.gf-tab:hover:not(.on){border-color:var(–border2);color:var(–text);}
 .gf-tab.on{
-  background:var(--bg4);color:var(--text);
-  border-color:var(--green);
-  box-shadow:0 0 10px rgba(0,229,160,0.15);
-  color:var(--green);
+background:var(–bg4);color:var(–text);
+border-color:var(–green);
+box-shadow:0 0 10px rgba(0,229,160,0.15);
+color:var(–green);
 }
 .gf-period-info{
-  font-family:var(--mono);font-size:11px;color:var(--muted2);
+font-family:var(–mono);font-size:11px;color:var(–muted2);
 }
 
 /* ── KPI ROW ── */
 .kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
 .kpi{
-  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
-  padding:18px 20px;position:relative;overflow:hidden;
-  transition:border-color 0.2s;
+background:var(–bg2);border:1px solid var(–border);border-radius:var(–r);
+padding:18px 20px;position:relative;overflow:hidden;
+transition:border-color 0.2s;
 }
-.kpi:hover{border-color:var(--border2);}
+.kpi:hover{border-color:var(–border2);}
 .kpi::after{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  opacity:0.7;
+content:’’;position:absolute;top:0;left:0;right:0;height:2px;
+opacity:0.7;
 }
-.kpi.g::after{background:var(--green);}
-.kpi.r::after{background:var(--red);}
-.kpi.b::after{background:var(--blue);}
-.kpi.gold::after{background:var(--gold);}
-.kpi.pu::after{background:var(--purple);}
-.kpi-label{font-size:10px;color:var(--muted2);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;}
-.kpi-val{font-family:var(--mono);font-size:28px;font-weight:500;line-height:1;}
-.kpi-val.g{color:var(--green);}
-.kpi-val.r{color:var(--red);}
-.kpi-val.b{color:var(--blue);}
-.kpi-val.gold{color:var(--gold);}
-.kpi-val.pu{color:var(--purple);}
-.kpi-sub{font-size:11px;color:var(--muted2);margin-top:6px;font-family:var(--mono);}
+.kpi.g::after{background:var(–green);}
+.kpi.r::after{background:var(–red);}
+.kpi.b::after{background:var(–blue);}
+.kpi.gold::after{background:var(–gold);}
+.kpi.pu::after{background:var(–purple);}
+.kpi-label{font-size:10px;color:var(–muted2);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;}
+.kpi-val{font-family:var(–mono);font-size:28px;font-weight:500;line-height:1;}
+.kpi-val.g{color:var(–green);}
+.kpi-val.r{color:var(–red);}
+.kpi-val.b{color:var(–blue);}
+.kpi-val.gold{color:var(–gold);}
+.kpi-val.pu{color:var(–purple);}
+.kpi-sub{font-size:11px;color:var(–muted2);margin-top:6px;font-family:var(–mono);}
 
 /* ── MAIN GRID ── */
 .main-grid{display:grid;grid-template-columns:1fr 360px;gap:16px;margin-bottom:16px;}
@@ -128,13 +129,13 @@ header{
 
 /* ── CARDS ── */
 .card{
-  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;
+background:var(–bg2);border:1px solid var(–border);border-radius:var(–r);overflow:hidden;
 }
 .card-head{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 20px;border-bottom:1px solid var(--border);
+display:flex;align-items:center;justify-content:space-between;
+padding:14px 20px;border-bottom:1px solid var(–border);
 }
-.card-title{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted2);}
+.card-title{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(–muted2);}
 .card-body{padding:20px;}
 
 /* ── CHART ── */
@@ -143,67 +144,67 @@ header{
 /* ── PERÍODO STATS ── */
 .period-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
 .ps{
-  background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;
+background:var(–bg3);border:1px solid var(–border);border-radius:8px;padding:14px;
 }
-.ps-label{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;}
-.ps-val{font-family:var(--mono);font-size:17px;font-weight:500;}
-.ps-val.g{color:var(--green);}
-.ps-val.r{color:var(--red);}
-.ps-val.gold{color:var(--gold);}
-.ps-val.b{color:var(--blue);}
-.ps-val.pu{color:var(--purple);}
+.ps-label{font-size:10px;color:var(–muted2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;}
+.ps-val{font-family:var(–mono);font-size:17px;font-weight:500;}
+.ps-val.g{color:var(–green);}
+.ps-val.r{color:var(–red);}
+.ps-val.gold{color:var(–gold);}
+.ps-val.b{color:var(–blue);}
+.ps-val.pu{color:var(–purple);}
 
 /* ── ATIVOS BREAKDOWN ── */
 .asset-list{display:flex;flex-direction:column;gap:8px;}
 .asset-row{display:flex;align-items:center;gap:10px;}
-.asset-name{font-family:var(--mono);font-size:12px;font-weight:500;width:68px;}
-.asset-bar-wrap{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.asset-name{font-family:var(–mono);font-size:12px;font-weight:500;width:68px;}
+.asset-bar-wrap{flex:1;height:5px;background:var(–border);border-radius:3px;overflow:hidden;}
 .asset-bar{height:100%;border-radius:3px;transition:width 0.6s;}
-.asset-pnl{font-family:var(--mono);font-size:12px;font-weight:500;width:72px;text-align:right;}
-.asset-ops{font-family:var(--mono);font-size:10px;color:var(--muted2);width:36px;text-align:right;}
+.asset-pnl{font-family:var(–mono);font-size:12px;font-weight:500;width:72px;text-align:right;}
+.asset-ops{font-family:var(–mono);font-size:10px;color:var(–muted2);width:36px;text-align:right;}
 
 /* ── EA BREAKDOWN ── */
 .ea-list{display:flex;flex-direction:column;gap:8px;}
 .ea-row{
-  display:flex;align-items:center;justify-content:space-between;
-  background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;
+display:flex;align-items:center;justify-content:space-between;
+background:var(–bg3);border:1px solid var(–border);border-radius:8px;padding:12px 14px;
 }
 .ea-name{font-size:12px;font-weight:600;}
-.ea-meta{font-size:10px;color:var(--muted2);margin-top:2px;font-family:var(--mono);}
-.ea-pnl{font-family:var(--mono);font-size:14px;font-weight:500;text-align:right;}
-.ea-wr{font-size:10px;color:var(--muted2);text-align:right;font-family:var(--mono);}
+.ea-meta{font-size:10px;color:var(–muted2);margin-top:2px;font-family:var(–mono);}
+.ea-pnl{font-family:var(–mono);font-size:14px;font-weight:500;text-align:right;}
+.ea-wr{font-size:10px;color:var(–muted2);text-align:right;font-family:var(–mono);}
 
 /* ── TABELA ── */
 .ops-wrap{max-height:240px;overflow-y:auto;}
 .ops-wrap::-webkit-scrollbar{width:3px;}
 .ops-wrap::-webkit-scrollbar-track{background:transparent;}
-.ops-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
+.ops-wrap::-webkit-scrollbar-thumb{background:var(–border2);border-radius:2px;}
+table{width:100%;border-collapse:collapse;font-family:var(–mono);font-size:11px;}
 thead th{
-  padding:8px 10px;text-align:left;
-  color:var(--muted2);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;
-  border-bottom:1px solid var(--border);font-weight:400;position:sticky;top:0;background:var(--bg2);
+padding:8px 10px;text-align:left;
+color:var(–muted2);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;
+border-bottom:1px solid var(–border);font-weight:400;position:sticky;top:0;background:var(–bg2);
 }
 tbody tr{border-bottom:1px solid rgba(255,255,255,0.025);transition:background 0.15s;}
 tbody tr:hover{background:rgba(255,255,255,0.025);}
 tbody td{padding:8px 10px;}
-.type-buy{background:rgba(0,229,160,0.1);color:var(--green);padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500;}
-.type-sell{background:rgba(255,69,96,0.1);color:var(--red);padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500;}
-.pnl-pos{color:var(--green);}
-.pnl-neg{color:var(--red);}
+.type-buy{background:rgba(0,229,160,0.1);color:var(–green);padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500;}
+.type-sell{background:rgba(255,69,96,0.1);color:var(–red);padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500;}
+.pnl-pos{color:var(–green);}
+.pnl-neg{color:var(–red);}
 
 /* ── CALENDAR HEATMAP ── */
 .cal-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;}
 .cal-day{
-  aspect-ratio:1;border-radius:3px;cursor:pointer;
-  transition:transform 0.1s;position:relative;
+aspect-ratio:1;border-radius:3px;cursor:pointer;
+transition:transform 0.1s;position:relative;
 }
 .cal-day:hover{transform:scale(1.15);}
 .cal-day[title]:hover::after{
-  content:attr(title);position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);
-  background:var(--bg4);border:1px solid var(--border2);border-radius:4px;
-  padding:4px 8px;font-size:10px;white-space:nowrap;color:var(--text);
-  font-family:var(--mono);z-index:10;pointer-events:none;
+content:attr(title);position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);
+background:var(–bg4);border:1px solid var(–border2);border-radius:4px;
+padding:4px 8px;font-size:10px;white-space:nowrap;color:var(–text);
+font-family:var(–mono);z-index:10;pointer-events:none;
 }
 
 /* ── BOTTOM ROW ── */
@@ -211,42 +212,103 @@ tbody td{padding:8px 10px;}
 
 /* ── TICKER ── */
 .ticker-bar{
-  display:flex;gap:24px;overflow-x:auto;padding:12px 20px;
-  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
-  margin-bottom:20px;
+display:flex;gap:24px;overflow-x:auto;padding:12px 20px;
+background:var(–bg2);border:1px solid var(–border);border-radius:var(–r);
+margin-bottom:20px;
 }
 .ticker-bar::-webkit-scrollbar{display:none;}
 .ticker-item{display:flex;align-items:center;gap:8px;white-space:nowrap;}
-.ticker-sym{font-size:12px;font-weight:600;color:var(--muted2);}
-.ticker-val{font-family:var(--mono);font-size:13px;font-weight:500;}
+.ticker-sym{font-size:12px;font-weight:600;color:var(–muted2);}
+.ticker-val{font-family:var(–mono);font-size:13px;font-weight:500;}
 
 @media(max-width:1100px){
-  .main-grid{grid-template-columns:1fr;}
-  .kpi-row{grid-template-columns:repeat(3,1fr);}
-  .bottom-row{grid-template-columns:1fr;}
+.main-grid{grid-template-columns:1fr;}
+.kpi-row{grid-template-columns:repeat(3,1fr);}
+.bottom-row{grid-template-columns:1fr;}
 }
-@media(max-width:600px){
-  .kpi-row{grid-template-columns:1fr 1fr;}
-  .period-grid{grid-template-columns:1fr 1fr;}
-  .gf-tabs{gap:4px;}
-  .gf-tab{padding:6px 12px;font-size:11px;}
+
+@media(max-width:768px){
+.app{padding:12px;}
+
+/* Header */
+header{
+flex-direction:column;align-items:flex-start;gap:10px;
+padding:14px 16px;
+}
+header > div:last-child{
+width:100%;flex-direction:row;justify-content:space-between;align-items:center;
+}
+
+/* Filtro global */
+.global-filter-bar{
+flex-direction:column;align-items:flex-start;gap:10px;padding:12px 16px;
+}
+.gf-tabs{flex-wrap:wrap;gap:6px;}
+.gf-tab{padding:6px 12px;font-size:11px;}
+.gf-period-info{display:none;}
+
+/* KPIs */
+.kpi-row{grid-template-columns:1fr 1fr;}
+.kpi-val{font-size:22px;}
+
+/* Ticker */
+.ticker-bar{padding:10px 14px;gap:16px;}
+
+/* Main grid */
+.main-grid{grid-template-columns:1fr;gap:12px;}
+
+/* Cards */
+.card-body{padding:14px;}
+.card-head{padding:12px 14px;}
+
+/* Período grid */
+.period-grid{grid-template-columns:1fr 1fr;}
+
+/* Tabelas */
+table{font-size:10px;}
+thead th{padding:6px 6px;font-size:9px;}
+tbody td{padding:6px 6px;}
+
+/* Heatmap */
+.cal-grid{grid-template-columns:repeat(7,1fr);}
+
+/* Assets */
+.asset-name{width:54px;font-size:11px;}
+.asset-pnl{font-size:11px;width:60px;}
+
+/* EA list */
+.ea-pnl{font-size:12px;}
+}
+
+@media(max-width:480px){
+.kpi-row{grid-template-columns:1fr 1fr;}
+.kpi-val{font-size:18px;}
+.kpi-label{font-size:9px;}
+.kpi-sub{font-size:10px;}
+
+/* Esconder coluna EA na tabela de operações em telas muito pequenas */
+.hide-mobile{display:none;}
+
+.period-grid{grid-template-columns:1fr 1fr;}
+.ps-val{font-size:14px;}
 }
 
 /* ── FOOTER ── */
 .footer{
-  text-align:center;
-  padding:20px;
-  margin-top:8px;
-  font-family:var(--mono);
-  font-size:11px;
-  color:var(--muted);
-  border-top:1px solid var(--border);
-  letter-spacing:0.06em;
+text-align:center;
+padding:20px;
+margin-top:8px;
+font-family:var(–mono);
+font-size:11px;
+color:var(–muted);
+border-top:1px solid var(–border);
+letter-spacing:0.06em;
 }
-.footer a{color:var(--muted2);text-decoration:none;transition:color 0.2s;}
-.footer a:hover{color:var(--green);}
-.footer em{color:var(--muted2);font-style:normal;}
+.footer a{color:var(–muted2);text-decoration:none;transition:color 0.2s;}
+.footer a:hover{color:var(–green);}
+.footer em{color:var(–muted2);font-style:normal;}
 </style>
+
 </head>
 <body>
 <div class="app">
@@ -266,6 +328,7 @@ tbody td{padding:8px 10px;}
 </header>
 
 <!-- FILTRO GLOBAL -->
+
 <div class="global-filter-bar">
   <span class="gf-label">📅 Período</span>
   <div class="gf-tabs">
@@ -297,6 +360,7 @@ tbody td{padding:8px 10px;}
 </div>
 
 <!-- KPIs -->
+
 <div class="kpi-row">
   <div class="kpi g">
     <div class="kpi-label">P&L Total</div>
@@ -326,88 +390,95 @@ tbody td{padding:8px 10px;}
 </div>
 
 <!-- Ticker rápido por ativo -->
+
 <div class="ticker-bar" id="tickerBar"></div>
 
 <!-- MAIN GRID -->
+
 <div class="main-grid">
   <div class="left-col">
 
-    <!-- Equity curve -->
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">Curva de Equity</span>
-        <span id="equityPeriodBadge" style="font-size:10px;color:var(--muted2);font-family:var(--mono)">Total</span>
-      </div>
-      <div class="card-body">
-        <div class="chart-wrap"><canvas id="equityChart" role="img" aria-label="Curva de equity acumulada"></canvas></div>
-      </div>
-    </div>
+```
+<!-- Equity curve -->
+<div class="card">
+  <div class="card-head">
+    <span class="card-title">Curva de Equity</span>
+    <span id="equityPeriodBadge" style="font-size:10px;color:var(--muted2);font-family:var(--mono)">Total</span>
+  </div>
+  <div class="card-body">
+    <div class="chart-wrap"><canvas id="equityChart" role="img" aria-label="Curva de equity acumulada"></canvas></div>
+  </div>
+</div>
 
-    <!-- Resultado por período -->
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">Resultado do Período</span>
-        <span id="periodBadge" style="font-size:10px;color:var(--green);font-family:var(--mono);background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);padding:3px 10px;border-radius:20px;">Total</span>
-      </div>
-      <div class="card-body">
-        <div class="period-grid" id="periodGrid"></div>
-      </div>
-    </div>
+<!-- Resultado por período -->
+<div class="card">
+  <div class="card-head">
+    <span class="card-title">Resultado do Período</span>
+    <span id="periodBadge" style="font-size:10px;color:var(--green);font-family:var(--mono);background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);padding:3px 10px;border-radius:20px;">Total</span>
+  </div>
+  <div class="card-body">
+    <div class="period-grid" id="periodGrid"></div>
+  </div>
+</div>
 
-    <!-- Últimas operações -->
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">Histórico de Operações</span>
-        <span style="font-size:10px;color:var(--muted2);font-family:var(--mono)" id="opsCount"></span>
-      </div>
-      <div class="card-body" style="padding:0">
-        <div class="ops-wrap">
-          <table>
-            <thead><tr>
-              <th>Data</th><th>Tipo</th><th>Ativo</th><th>EA</th><th>P&L</th>
-            </tr></thead>
-            <tbody id="opsTable"></tbody>
-          </table>
-        </div>
-      </div>
+<!-- Últimas operações -->
+<div class="card">
+  <div class="card-head">
+    <span class="card-title">Histórico de Operações</span>
+    <span style="font-size:10px;color:var(--muted2);font-family:var(--mono)" id="opsCount"></span>
+  </div>
+  <div class="card-body" style="padding:0">
+    <div class="ops-wrap">
+      <table>
+        <thead><tr>
+          <th>Data</th><th>Tipo</th><th>Ativo</th><th class="hide-mobile">EA</th><th>P&L</th>
+        </tr></thead>
+        <tbody id="opsTable"></tbody>
+      </table>
     </div>
+  </div>
+</div>
+```
 
   </div>
   <div class="right-col">
 
-    <!-- P&L por ativo -->
-    <div class="card">
-      <div class="card-head"><span class="card-title">P&L por Ativo</span></div>
-      <div class="card-body">
-        <div class="asset-list" id="assetList"></div>
-      </div>
-    </div>
+```
+<!-- P&L por ativo -->
+<div class="card">
+  <div class="card-head"><span class="card-title">P&L por Ativo</span></div>
+  <div class="card-body">
+    <div class="asset-list" id="assetList"></div>
+  </div>
+</div>
 
-    <!-- P&L por EA -->
-    <div class="card">
-      <div class="card-head"><span class="card-title">P&L por Estratégia</span></div>
-      <div class="card-body">
-        <div class="ea-list" id="eaList"></div>
-      </div>
-    </div>
+<!-- P&L por EA -->
+<div class="card">
+  <div class="card-head"><span class="card-title">P&L por Estratégia</span></div>
+  <div class="card-body">
+    <div class="ea-list" id="eaList"></div>
+  </div>
+</div>
 
-    <!-- Heatmap por dia -->
-    <div class="card">
-      <div class="card-head"><span class="card-title">Heatmap Diário</span></div>
-      <div class="card-body">
-        <div class="cal-grid" id="calGrid"></div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:10px;color:var(--muted2);font-family:var(--mono);">
-          <div style="width:10px;height:10px;border-radius:2px;background:var(--red2)"></div> Perda
-          <div style="width:10px;height:10px;border-radius:2px;background:var(--bg4);border:1px solid var(--border2);margin-left:4px"></div> Zero
-          <div style="width:10px;height:10px;border-radius:2px;background:var(--green2);margin-left:4px"></div> Lucro
-        </div>
-      </div>
+<!-- Heatmap por dia -->
+<div class="card">
+  <div class="card-head"><span class="card-title">Heatmap Diário</span></div>
+  <div class="card-body">
+    <div class="cal-grid" id="calGrid"></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:10px;color:var(--muted2);font-family:var(--mono);">
+      <div style="width:10px;height:10px;border-radius:2px;background:var(--red2)"></div> Perda
+      <div style="width:10px;height:10px;border-radius:2px;background:var(--bg4);border:1px solid var(--border2);margin-left:4px"></div> Zero
+      <div style="width:10px;height:10px;border-radius:2px;background:var(--green2);margin-left:4px"></div> Lucro
     </div>
+  </div>
+</div>
+```
 
   </div>
 </div>
 
 <!-- P&L Mensal -->
+
 <div class="card" style="margin-bottom:16px;">
   <div class="card-head">
     <span class="card-title">P&L por Mês</span>
@@ -426,6 +497,7 @@ tbody td{padding:8px 10px;}
 </div>
 
 <!-- Footer -->
+
 <div class="footer">
   © Junior Corrêa · Todos os direitos reservados
 </div>
@@ -878,7 +950,7 @@ function renderTable(ops) {
       <td>${fmtDate(o.date)}</td>
       <td>${typeBdg}</td>
       <td>${o.asset}</td>
-      <td style="color:var(--muted2)">${o.ea}</td>
+      <td class="hide-mobile" style="color:var(--muted2)">${o.ea}</td>
       <td class="${tc}">${fmt(o.pnl)}</td>
     </tr>`;
   }).join('');
@@ -902,5 +974,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function loadData() { fetchSheets(); }
 </script>
+
 </body>
 </html>
