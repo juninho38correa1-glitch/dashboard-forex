@@ -388,7 +388,16 @@ tbody td{padding:8px 10px;}
 <!-- Ticker rápido por ativo -->
 <div class="ticker-bar" id="tickerBar"></div>
 
-<!-- MAIN GRID -->
+<!-- Card de Sequências -->
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-head">
+    <span class="card-title">Sequências de Dias</span>
+    <span style="font-size:10px;color:var(--muted2);font-family:var(--mono)">por resultado diário</span>
+  </div>
+  <div class="card-body" style="padding:16px 20px;">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;" id="streakGrid"></div>
+  </div>
+</div>
 <div class="main-grid">
   <div class="left-col">
 
@@ -755,6 +764,7 @@ function renderAllFiltered(ops, allDates, TODAY) {
   renderAssets(ops);
   renderEAs(ops);
   renderHeatmap(filteredDates, dayPnl);
+  renderStreaks(ops);
   renderMonthly();
   renderTable(ops);
 }
@@ -897,6 +907,73 @@ function renderHeatmap(filteredDates, dayPnl) {
     }
     return `<div class="cal-day" style="background:${bg}" title="${fmtDate(d)} ${fmt(p)}"></div>`;
   }).join('');
+}
+
+// ── SEQUÊNCIAS ──
+function renderStreaks(ops) {
+  // agrupa P&L por dia
+  const dates  = [...new Set(ops.map(o => o.date))].sort();
+  const dayPnl = {};
+  dates.forEach(d => { dayPnl[d] = ops.filter(o => o.date === d).reduce((a,b) => a + b.pnl, 0); });
+  const days   = dates.map(d => ({ date: d, pnl: dayPnl[d] }));
+
+  if (days.length === 0) {
+    document.getElementById('streakGrid').innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;color:var(--muted2);font-family:var(--mono);font-size:11px;padding:10px 0;">Sem dados suficientes</div>`;
+    return;
+  }
+
+  // sequência atual (a partir do último dia)
+  let currentStreak = 0;
+  let currentType   = days[days.length - 1].pnl >= 0 ? 'win' : 'loss';
+  for (let i = days.length - 1; i >= 0; i--) {
+    const isWin = days[i].pnl >= 0;
+    if ((currentType === 'win' && isWin) || (currentType === 'loss' && !isWin)) {
+      currentStreak++;
+    } else break;
+  }
+
+  // maior sequência de ganho
+  let bestStreak = 0, tempWin = 0;
+  days.forEach(d => { d.pnl >= 0 ? tempWin++ : tempWin = 0; bestStreak = Math.max(bestStreak, tempWin); });
+
+  // maior sequência de loss
+  let worstStreak = 0, tempLoss = 0;
+  days.forEach(d => { d.pnl < 0 ? tempLoss++ : tempLoss = 0; worstStreak = Math.max(worstStreak, tempLoss); });
+
+  // maior drawdown consecutivo (soma dos dias negativos em sequência)
+  let maxDrawdown = 0, tempDD = 0;
+  days.forEach(d => {
+    if (d.pnl < 0) { tempDD += d.pnl; maxDrawdown = Math.min(maxDrawdown, tempDD); }
+    else tempDD = 0;
+  });
+
+  const isCurrentWin = currentType === 'win';
+  const currentColor = isCurrentWin ? 'var(--green)' : 'var(--red)';
+  const currentIcon  = isCurrentWin ? '🔥' : '📉';
+  const currentLabel = isCurrentWin ? 'dias lucro' : 'dias loss';
+
+  document.getElementById('streakGrid').innerHTML = `
+    <div style="background:var(--bg3);border:1px solid ${isCurrentWin ? 'rgba(0,229,160,0.2)' : 'rgba(255,69,96,0.2)'};border-radius:8px;padding:14px;">
+      <div style="font-size:10px;color:var(--muted2);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Sequência atual</div>
+      <div style="font-family:var(--mono);font-size:26px;font-weight:500;color:${currentColor};">${currentIcon} ${currentStreak}</div>
+      <div style="font-size:11px;color:var(--muted2);font-family:var(--mono);margin-top:4px;">${currentLabel} seguidos</div>
+    </div>
+    <div style="background:var(--bg3);border:1px solid rgba(0,229,160,0.15);border-radius:8px;padding:14px;">
+      <div style="font-size:10px;color:var(--muted2);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Melhor sequência</div>
+      <div style="font-family:var(--mono);font-size:26px;font-weight:500;color:var(--green);">🏆 ${bestStreak}</div>
+      <div style="font-size:11px;color:var(--muted2);font-family:var(--mono);margin-top:4px;">dias lucro consecutivos</div>
+    </div>
+    <div style="background:var(--bg3);border:1px solid rgba(255,69,96,0.15);border-radius:8px;padding:14px;">
+      <div style="font-size:10px;color:var(--muted2);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Pior sequência</div>
+      <div style="font-family:var(--mono);font-size:26px;font-weight:500;color:var(--red);">💀 ${worstStreak}</div>
+      <div style="font-size:11px;color:var(--muted2);font-family:var(--mono);margin-top:4px;">dias loss consecutivos</div>
+    </div>
+    <div style="background:var(--bg3);border:1px solid rgba(255,69,96,0.15);border-radius:8px;padding:14px;">
+      <div style="font-size:10px;color:var(--muted2);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Maior drawdown consec.</div>
+      <div style="font-family:var(--mono);font-size:26px;font-weight:500;color:var(--red);">-$${Math.abs(maxDrawdown).toFixed(2)}</div>
+      <div style="font-size:11px;color:var(--muted2);font-family:var(--mono);margin-top:4px;">em dias loss seguidos</div>
+    </div>`;
 }
 
 // ── MENSAL ──
