@@ -644,9 +644,11 @@ function showLoading(show) {
 }
 
 // ── FETCH CSV DO SHEETS ──
-async function fetchSheets() {
-  document.getElementById('syncLabel').textContent = 'SINCRONIZANDO...';
-  showLoading(true);
+async function fetchSheets(silent = false) {
+  if (!silent) {
+    document.getElementById('syncLabel').textContent = 'SINCRONIZANDO...';
+    showLoading(true);
+  }
   try {
     const res = await fetch(SHEETS_URL);
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -661,9 +663,9 @@ async function fetchSheets() {
   } catch(e) {
     document.getElementById('syncLabel').textContent = 'ERRO — RETRY';
     document.getElementById('syncLabel').style.color = '#ff4560';
-    showError(e.message);
+    if (!silent) showError(e.message);
   } finally {
-    showLoading(false);
+    if (!silent) showLoading(false);
   }
 }
 
@@ -1023,7 +1025,7 @@ function renderTable(ops) {
 
 // ── AUTO REFRESH ──
 function startAutoRefresh() {
-  setInterval(() => fetchSheets(), 60000);
+  setInterval(() => fetchSheets(true), 60000);
 }
 
 // ── CSS ANIMATION ──
