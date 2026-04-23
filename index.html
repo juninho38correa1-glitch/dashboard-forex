@@ -395,7 +395,7 @@ tbody td{padding:8px 10px;}
     <span style="font-size:10px;color:var(--muted2);font-family:var(--mono)">por resultado diário</span>
   </div>
   <div class="card-body" style="padding:16px 20px;">
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;" id="streakGrid"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;" id="streakGrid"></div>
   </div>
 </div>
 
@@ -983,11 +983,6 @@ function renderStreaks(ops) {
       <div style="font-size:10px;color:var(--muted2);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Pior sequência</div>
       <div style="font-family:var(--mono);font-size:26px;font-weight:500;color:var(--red);">💀 ${worstStreak}</div>
       <div style="font-size:11px;color:var(--muted2);font-family:var(--mono);margin-top:4px;">dias loss consecutivos</div>
-    </div>
-    <div style="background:var(--bg3);border:1px solid rgba(255,69,96,0.15);border-radius:8px;padding:14px;">
-      <div style="font-size:10px;color:var(--muted2);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Maior drawdown consec.</div>
-      <div style="font-family:var(--mono);font-size:26px;font-weight:500;color:var(--red);">-$${Math.abs(maxDrawdown).toFixed(2)}</div>
-      <div style="font-size:11px;color:var(--muted2);font-family:var(--mono);margin-top:4px;">em dias loss seguidos</div>
     </div>`;
 }
 
