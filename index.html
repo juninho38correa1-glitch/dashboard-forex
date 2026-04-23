@@ -1015,10 +1015,14 @@ function renderGoal() {
   // calcula meta do mês atual: 20% sobre fechamento do mês anterior
   // encadeia mês a mês a partir da base
   const sortedMonths = Object.keys(monthMap).sort();
-  let meta = BASE_META;
-  for (const ym of sortedMonths) {
+  let meta = BASE_META * 1.2; // padrão: 20% sobre a base inicial
+  for (let i = 0; i < sortedMonths.length; i++) {
+    const ym = sortedMonths[i];
     if (ym === currentYM) break;
-    if (ym >= BASE_MES) meta = Math.max(monthMap[ym] * 1.2, BASE_META);
+    if (ym > BASE_MES) {
+      const fechamento = monthMap[ym];
+      if (fechamento > 0) meta = fechamento * 1.2;
+    }
   }
 
   const realizado  = monthMap[currentYM] || 0;
